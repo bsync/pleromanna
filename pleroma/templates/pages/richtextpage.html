@@ -1,0 +1,15 @@
+{% extends "pages/page.html" %}
+
+{% load mezzanine_tags %}
+
+{% block main %}{{ block.super }}
+
+{% editable page.richtextpage.content %}
+<div class="page-container">
+	<div class="backdropped"> 
+	{{ page.richtextpage.content|richtext_filters|safe }}
+	</div>
+</div>
+{% endeditable %}
+
+{% endblock %}
