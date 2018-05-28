@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Docker Wagtail starter
 
 
@@ -44,3 +45,6 @@ Your site is now accessible at 0.0.0.0:8000 (or watever ip your docker is set to
 [Read more on the wagtail docs](http://docs.wagtail.io/en/v1.13.1/)
 
 *you may need to run ```   sudo chown -R $USER:$USER . ``` if you create a wagtail project from within docker
+=======
+# pleromanna
+>>>>>>> aadcf1d2e31d13f0ac49d8205e1b5110023d24a7
