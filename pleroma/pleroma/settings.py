@@ -189,7 +189,12 @@ AWS_S3_OBJECT_PARAMETERS = { 'CacheControl': 'max-age=86400', }
 AWS_LOCATION = 'static'
 AWS_S3_SECURE_URLS = AWS_QUERYSTRING_AUTH = False
 STATIC_URL = 'http://%s/%s/' % (AWS_S3_CUSTOM_DOMAIN, AWS_LOCATION)
-DEFAULT_FILE_STORAGE = STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+STATICFILES_LOCATION = 'static'
+STATICFILES_STORAGE = 'custom_storages.StaticStorage'
+MEDIAFILES_LOCATION = 'media'
+DEFAULT_FILE_STORAGE = 'custom_storages.MediaStorage'
+PRIVATE_MEDIAFILES_LOCATION = 'media/private'
+PRIVATE_FILE_STORAGE = 'custom_storages.PrivateMediaStorage'
 
 # URL prefix for static files.
 # Example: "http://media.lawrence.com/static/"
