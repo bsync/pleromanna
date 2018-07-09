@@ -7,8 +7,9 @@ free to modify it.  -->
 <div class="welcome-container">
 	<div class="backdropped"> 
 		<img src="{%static "img/pleromites.jpg"%}">
+	</div>
 		{{ block.super }} 
-   </div>
+</div>
 	<div>
 		<div class="panel panel-default tree">
 			{% blog_recent_posts 5 as recent_posts %}
