@@ -1,6 +1,9 @@
+dev:
+	docker-compose build 
+	docker-compose up -d
 
-launch:
-	sudo docker run --mount type=bind,source=/home/ubuntu/pleroma.db,target=/pleroma/pleroma.db --env-file .env -it -p80:80 -d pleromanna:local
+migration:
+	docker-compose run migration
 
-list:
-	sudo docker ps
+stop:
+	docker-compose down

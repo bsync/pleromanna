@@ -1,11 +1,23 @@
 version: '3'
 services:
   web:
-    build: .
-    env_file:
-      - pleroma/.env
-    container_name: django
+    image: pleromanna
+    env_file: .env
+    container_name: plerodock
     volumes:
       - ./pleroma:/pleroma
-    ports:
-      - "8000:8000"
+      - ~/pleroma.db:/pleroma/pleroma.db
+    ports: 
+      -  "80:80"
+    command: gunicorn -b 0.0.0.0:80 manna.wsgi
+    depends_on: 
+      - migration
+
+  migration:
+    build: .
+    image: pleromanna
+    env_file: .env
+    volumes:
+      - ./pleroma:/pleroma
+      - ~/pleroma.db:/pleroma/pleroma.db
+    command: bash -c "python manage.py makemigrations && python manage.py migrate"

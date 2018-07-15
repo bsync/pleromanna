@@ -1,6 +1,7 @@
 
 from __future__ import absolute_import, unicode_literals
 import os
+from os import environ as env
 
 from django import VERSION as DJANGO_VERSION
 from django.utils.translation import ugettext_lazy as _
@@ -179,32 +180,37 @@ PROJECT_ROOT = BASE_DIR = os.path.dirname(PROJECT_APP_PATH)
 # project specific.
 CACHE_MIDDLEWARE_KEY_PREFIX = PROJECT_APP
 
-from decouple import config
-SECRET_KEY = config('SECRET_KEY')
-AWS_ACCESS_KEY_ID = config('AWS_ACCESS_KEY_ID')
-AWS_SECRET_ACCESS_KEY = config('AWS_SECRET_ACCESS_KEY')
-AWS_STORAGE_BUCKET_NAME='www.pleromabiblechurch.org'
-AWS_S3_CUSTOM_DOMAIN = '%s.s3.amazonaws.com' % AWS_STORAGE_BUCKET_NAME
-AWS_S3_OBJECT_PARAMETERS = { 'CacheControl': 'max-age=86400', }
-AWS_LOCATION = 'static'
-AWS_S3_SECURE_URLS = AWS_QUERYSTRING_AUTH = False
-STATIC_URL = 'http://%s/%s/' % (AWS_S3_CUSTOM_DOMAIN, AWS_LOCATION)
-DEFAULT_FILE_STORAGE = STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+SECRET_KEY = env['SECRET_KEY']
+AWS_ACCESS_KEY_ID = env['AWS_ACCESS_KEY_ID']
+AWS_SECRET_ACCESS_KEY = env['AWS_SECRET_ACCESS_KEY']
 
+AWS_S3_OBJECT_PARAMETERS = { 'CacheControl': 'max-age=86400', }
+AWS_S3_SECURE_URLS = AWS_QUERYSTRING_AUTH = False
+
+
+AWS_STATIC_LOCATION = 'static'
+STATICFILES_STORAGE = 'manna.storage_backends.StaticStorage'
+
+AWS_PUBLIC_MEDIA_LOCATION = 'media/public'
+DEFAULT_FILE_STORAGE = 'manna.storage_backends.PublicMediaStorage'
+
+AWS_PRIVATE_MEDIA_LOCATION = 'media/private'
+PRIVATE_FILE_STORAGE = 'manna.storage_backends.PrivateMediaStorage'
+
+STATIC_URL = 'http://www.pleromabiblechurch.org.s3.amazonaws.com/static/' 
 # URL prefix for static files.
 # Example: "http://media.lawrence.com/static/"
 #STATIC_URL = "/static/"
+# URL that handles the media served from MEDIA_ROOT. Make sure to use a
+# trailing slash.
+# Examples: "http://media.lawrence.com/media/", "http://example.com/media/"
+MEDIA_URL = 'http://www.pleromabiblechurch.manna.s3.amazonaws.com'
 
 # Absolute path to the directory static files should be collected to.
 # Don't put anything in this directory yourself; store your static files
 # in apps' "static/" subdirectories and in STATICFILES_DIRS.
 # Example: "/home/media/media.lawrence.com/static/"
 STATIC_ROOT = os.path.join(PROJECT_ROOT, STATIC_URL.strip("/"))
-
-# URL that handles the media served from MEDIA_ROOT. Make sure to use a
-# trailing slash.
-# Examples: "http://media.lawrence.com/media/", "http://example.com/media/"
-MEDIA_URL = STATIC_URL + "media/"
 
 # Absolute filesystem path to the directory that will hold user-uploaded files.
 # Example: "/home/media/media.lawrence.com/media/"
@@ -216,9 +222,7 @@ ROOT_URLCONF = "%s.urls" % PROJECT_APP
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [
-            os.path.join(PROJECT_ROOT, "templates")
-        ],
+        "DIRS": [ os.path.join(PROJECT_ROOT, "templates") ],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -233,9 +237,7 @@ TEMPLATES = [
                 "mezzanine.conf.context_processors.settings",
                 "mezzanine.pages.context_processors.page",
             ],
-            "builtins": [
-                "mezzanine.template.loader_tags",
-            ],
+            "builtins": [ "mezzanine.template.loader_tags", ],
         },
     },
 ]
@@ -267,7 +269,7 @@ INSTALLED_APPS = (
     "mezzanine.galleries",
     "mezzanine.twitter",
     "storages",
-    "pleroma",
+    "manna",
     # "mezzanine.accounts",
     # "mezzanine.mobile",
 )
