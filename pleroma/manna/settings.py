@@ -183,10 +183,12 @@ CACHE_MIDDLEWARE_KEY_PREFIX = PROJECT_APP
 SECRET_KEY = env['SECRET_KEY']
 AWS_ACCESS_KEY_ID = env['AWS_ACCESS_KEY_ID']
 AWS_SECRET_ACCESS_KEY = env['AWS_SECRET_ACCESS_KEY']
+AWS_S3_REGION_NAME = 'us-east-2'
 
 AWS_S3_OBJECT_PARAMETERS = { 'CacheControl': 'max-age=86400', }
 AWS_S3_SECURE_URLS = AWS_QUERYSTRING_AUTH = False
-
+AWS_STORAGE_BUCKET_NAME = "www.pleromabiblechurch.org"
+AWS_S3_CUSTOM_DOMAIN = '%s.s3.amazonaws.com' % AWS_STORAGE_BUCKET_NAME
 
 AWS_STATIC_LOCATION = 'static'
 STATICFILES_STORAGE = 'manna.storage_backends.StaticStorage'
@@ -197,14 +199,14 @@ DEFAULT_FILE_STORAGE = 'manna.storage_backends.PublicMediaStorage'
 AWS_PRIVATE_MEDIA_LOCATION = 'media/private'
 PRIVATE_FILE_STORAGE = 'manna.storage_backends.PrivateMediaStorage'
 
-STATIC_URL = 'http://www.pleromabiblechurch.org.s3.amazonaws.com/static/' 
+STATIC_URL = "http://%s.s3.amazonaws.com/static/" % AWS_STORAGE_BUCKET_NAME 
 # URL prefix for static files.
 # Example: "http://media.lawrence.com/static/"
 #STATIC_URL = "/static/"
 # URL that handles the media served from MEDIA_ROOT. Make sure to use a
 # trailing slash.
 # Examples: "http://media.lawrence.com/media/", "http://example.com/media/"
-MEDIA_URL = 'http://www.pleromabiblechurch.manna.s3.amazonaws.com'
+MEDIA_URL = "http://%s.s3.amazonaws.com/" % AWS_STORAGE_BUCKET_NAME
 
 # Absolute path to the directory static files should be collected to.
 # Don't put anything in this directory yourself; store your static files
