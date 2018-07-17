@@ -1,0 +1,5 @@
+web:
+   volumes:
+      - ./pleroma:/pleroma
+      - ~/pleroma.db:/pleroma/pleroma.db
+   build: .

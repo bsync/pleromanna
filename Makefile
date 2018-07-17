@@ -1,6 +1,6 @@
-dev:
+dev: stop
 	docker-compose build 
-	docker-compose up -d
+	docker-compose up 
 
 migration:
 	docker-compose run migration
