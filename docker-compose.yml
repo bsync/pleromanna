@@ -1,6 +1,5 @@
 web:
    image: docksync/pleromanna
-   build: .
    env_file: .env
    container_name: plerodock
    ports: 

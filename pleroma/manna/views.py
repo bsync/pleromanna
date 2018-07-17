@@ -5,6 +5,7 @@ from django.utils.decorators import method_decorator
 
 from .models import Upload, PrivateUpload
 
+@method_decorator(login_required, name='dispatch')
 class DocumentCreateView(CreateView):
     model = Upload
     fields = ['theFile', ]
