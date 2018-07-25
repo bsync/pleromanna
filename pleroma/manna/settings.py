@@ -223,6 +223,13 @@ ROOT_URLCONF = "%s.urls" % PROJECT_APP
 
 LOGIN_URL = "/login/"
 
+ACCOUNTS_APPROVAL_REQUIRED = True
+ACCOUNTS_APPROVAL_EMAILS = 'james.horine@gmail.com'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'james.horine@gmail.com'
+EMAIL_HOST_PASSWORD = env['EMAIL_HOST_PASSWORD']
 
 TEMPLATES = [
     {
@@ -273,9 +280,9 @@ INSTALLED_APPS = (
     "mezzanine.forms",
     "mezzanine.galleries",
     "mezzanine.twitter",
+    "mezzanine.accounts",
     "storages",
     "manna",
-    # "mezzanine.accounts",
     # "mezzanine.mobile",
 )
 

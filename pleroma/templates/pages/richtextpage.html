@@ -2,8 +2,7 @@
 
 {% load mezzanine_tags %}
 
-{% block main %}{{ block.super }}
-
+{% block main %}
 {% editable page.richtextpage.content %}
 <div class="page-container">
 	<div class="backdropped"> 
@@ -11,5 +10,4 @@
 	</div>
 </div>
 {% endeditable %}
-
 {% endblock %}
