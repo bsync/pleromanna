@@ -1,1 +1,8 @@
-pleroma/.env
+.env
+.penv
+.DS_Store
+.coverage
+*.pyc
+*.pyo
+*.db
+local_settings.py

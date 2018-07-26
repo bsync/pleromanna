@@ -1,7 +1,6 @@
 
 from __future__ import absolute_import, unicode_literals
 import os
-from os import environ as env
 
 from django import VERSION as DJANGO_VERSION
 from django.utils.translation import ugettext_lazy as _
@@ -86,10 +85,6 @@ from django.utils.translation import ugettext_lazy as _
 # INSTALLED_APPS setting.
 USE_MODELTRANSLATION = False
 
-STATICFILES_FINDERS = [
-    'django.contrib.staticfiles.finders.FileSystemFinder',
-    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
-]
 
 ########################
 # MAIN DJANGO SETTINGS #
@@ -97,7 +92,7 @@ STATICFILES_FINDERS = [
 
 # Hosts/domain names that are valid for this site; required if DEBUG is False
 # See https://docs.djangoproject.com/en/dev/ref/settings/#allowed-hosts
-ALLOWED_HOSTS = "*"
+ALLOWED_HOSTS = []
 
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
@@ -142,7 +137,6 @@ AUTHENTICATION_BACKENDS = ("mezzanine.core.auth_backends.MezzanineBackend",)
 # a mode you'd pass directly to os.chmod.
 FILE_UPLOAD_PERMISSIONS = 0o644
 
-FILEBROWSER_MAX_UPLOAD_SIZE = 40000000
 
 #############
 # DATABASES #
@@ -180,9 +174,6 @@ PROJECT_ROOT = BASE_DIR = os.path.dirname(PROJECT_APP_PATH)
 # project specific.
 CACHE_MIDDLEWARE_KEY_PREFIX = PROJECT_APP
 
-SECRET_KEY = env['SECRET_KEY']
-AWS_ACCESS_KEY_ID = env['AWS_ACCESS_KEY_ID']
-AWS_SECRET_ACCESS_KEY = env['AWS_SECRET_ACCESS_KEY']
 AWS_S3_REGION_NAME = 'us-east-2'
 
 AWS_S3_OBJECT_PARAMETERS = { 'CacheControl': 'max-age=86400', }
@@ -191,13 +182,13 @@ AWS_STORAGE_BUCKET_NAME = "www.pleromabiblechurch.org"
 AWS_S3_CUSTOM_DOMAIN = '%s.s3.amazonaws.com' % AWS_STORAGE_BUCKET_NAME
 
 AWS_STATIC_LOCATION = 'static'
-STATICFILES_STORAGE = 'manna.storage_backends.StaticStorage'
+STATICFILES_STORAGE = 'pleroma.storage_backends.StaticStorage'
 
 AWS_PUBLIC_MEDIA_LOCATION = 'media/public'
-DEFAULT_FILE_STORAGE = 'manna.storage_backends.PublicMediaStorage'
+DEFAULT_FILE_STORAGE = 'pleroma.storage_backends.PublicMediaStorage'
 
 AWS_PRIVATE_MEDIA_LOCATION = 'media/private'
-PRIVATE_FILE_STORAGE = 'manna.storage_backends.PrivateMediaStorage'
+PRIVATE_FILE_STORAGE = 'pleroma.storage_backends.PrivateMediaStorage'
 
 STATIC_URL = "http://%s.s3.amazonaws.com/static/" % AWS_STORAGE_BUCKET_NAME 
 # URL prefix for static files.
@@ -229,7 +220,6 @@ EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'james.horine@gmail.com'
-EMAIL_HOST_PASSWORD = env['EMAIL_HOST_PASSWORD']
 
 TEMPLATES = [
     {
@@ -251,7 +241,7 @@ TEMPLATES = [
             ],
             "builtins": [ "mezzanine.template.loader_tags", ],
         },
-    },
+        },
 ]
 
 if DJANGO_VERSION < (1, 9):
@@ -282,6 +272,7 @@ INSTALLED_APPS = (
     "mezzanine.twitter",
     "mezzanine.accounts",
     "storages",
+    "pleroma",
     "manna",
     # "mezzanine.mobile",
 )
@@ -369,4 +360,3 @@ except ImportError:
     pass
 else:
     set_dynamic_settings(globals())
-

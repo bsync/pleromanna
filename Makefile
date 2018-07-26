@@ -1,15 +1,4 @@
-dev: stop
-	docker-compose up 
-
-build:
-	docker-compose build 
-
-prod: stop
-	docker-compose up -d
-	
-migration:
-	docker-compose run docksync/pleromanna:latest \
-    bash -c "python manage.py makemigrations && python manage.py migration"
-
-stop:
-	docker-compose down
+dev: 
+	cd pleroma && gunicorn -b 0.0.0.0:8000 pleroma.wsgi
+prod: 
+	cd pleroma && gunicorn -b 0.0.0.0:80 pleroma.wsgi

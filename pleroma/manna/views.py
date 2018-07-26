@@ -1,7 +1,7 @@
 from django.contrib.auth.decorators import login_required
+from django.utils.decorators import method_decorator
 from django.views.generic.edit import CreateView
 from django.urls import reverse_lazy
-from django.utils.decorators import method_decorator
 
 from .models import Upload, PrivateUpload
 
@@ -27,3 +27,4 @@ class PrivateDocumentCreateView(CreateView):
         self.object.user = self.request.user
         self.object.save()
         return super().form_valid(form)
+# Create your views here.

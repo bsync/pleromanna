@@ -9,9 +9,7 @@ from django.views.generic import TemplateView
 
 from mezzanine.core.views import direct_to_template
 from mezzanine.conf import settings
-import mezzanine.pages.views
-from manna import views as mviews
-
+from manna.views import DocumentCreateView
 
 admin.autodiscover()
 
@@ -63,10 +61,9 @@ urlpatterns += [
     #url("^$", mezzanine.pages.views.page, {"slug": "/"}, name="home"),
 
     #Added to support uploading
-    url(r'^upload/$', mviews.DocumentCreateView.as_view(), name='upload'),
+    url(r'^upload/$', DocumentCreateView.as_view(), name='upload'),
     url(r'^login/$', auth_views.login, name='login'),
     url(r'^logout/$', auth_views.logout, name='logout'),
-    url(r'^profile/$', mviews.PrivateDocumentCreateView.as_view(), name='profile'),
 
     # HOMEPAGE FOR A BLOG-ONLY SITE
     # -----------------------------

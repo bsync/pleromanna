@@ -1,7 +1,0 @@
-web:
-   image: docksync/pleromanna
-   env_file: .env
-   container_name: plerodock
-   ports: 
-      -  "80:80"
-   command: /pleroma/plerostart

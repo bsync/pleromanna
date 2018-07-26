@@ -1,0 +1,5 @@
+Mezzanine==4.2.3
+django-storages
+boto3
+psycopg2-binary
+gunicorn
