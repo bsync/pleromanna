@@ -1,8 +1,7 @@
 {% extends 'base.html' %}
 
 {% block main %}
-  <h2>Public Uploads</h2>
-  <h3>Upload to Amazon S3</h3>
+  <h2>Lesson Uploads</h2>
 
   <form method="post" enctype="multipart/form-data">
     {% csrf_token %}
@@ -15,15 +14,17 @@
       <tr>
         <th>Name</th>
         <th>Uploaded at</th>
+        <th>Recorded on</th>
         <th>Size</th>
       </tr>
     </thead>
     <tbody>
-      {% for upload in uploads %}
+      {% for lesson in lessons %}
         <tr>
-          <td><a href="{{ upload.theFile.url }}" target="_blank">{{ upload.theFile.name }}</a></td>
-          <td>{{ upload.timestamp }}</td>
-          <td>{{ upload.theFile.size|filesizeformat }}</td>
+          <td><a href="{{ lesson.theFile.url }}" target="_blank">{{ lesson.theFile.name }}</a></td>
+          <td>{{ lesson.uploaded }}</td>
+          <td>{{ lesson.recorded }}</td>
+          <td>{{ lesson.theFile.size|filesizeformat }}</td>
         </tr>
       {% empty %}
         <tr>

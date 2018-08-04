@@ -1,30 +1,24 @@
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.views.generic.edit import CreateView
+from django.views.generic.list import ListView
+from django.shortcuts import render
 from django.urls import reverse_lazy
 
-from .models import Upload, PrivateUpload
+from .models import Lesson
 
 @method_decorator(login_required, name='dispatch')
-class DocumentCreateView(CreateView):
-    model = Upload
-    fields = ['theFile', ]
-    success_url = reverse_lazy('home')
+class UploadView(CreateView):
+   model = Lesson
+   fields = ['name', 'description', 'recorded', 'theFile' ]
+   success_url = reverse_lazy('home')
+   context_object_name='lesson'
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['uploads'] = Upload.objects.all()
-        return context
+def get_context_data(self, **kwargs):
+   context = super().get_context_data(**kwargs)
+   context['lessons'] = Lesson.objects.all()
+   return context
 
-@method_decorator(login_required, name='dispatch')
-class PrivateDocumentCreateView(CreateView):
-    model = PrivateUpload
-    fields = ['theFile', ]
-    success_url = reverse_lazy('profile')
-
-    def form_valid(self, form):
-        self.object = form.save(commit=False)
-        self.object.user = self.request.user
-        self.object.save()
-        return super().form_valid(form)
-# Create your views here.
+class CatalogView(ListView):
+   model = Lesson
+   paginate_by = 100  

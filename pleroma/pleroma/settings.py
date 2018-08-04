@@ -119,7 +119,6 @@ LANGUAGES = (
 # are displayed for error pages. Should always be set to ``False`` in
 # production. Best set to ``True`` in local_settings.py
 DEBUG = False
-
 # Whether a user's session cookie expires when the Web browser is closed.
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 
@@ -174,31 +173,42 @@ PROJECT_ROOT = BASE_DIR = os.path.dirname(PROJECT_APP_PATH)
 # project specific.
 CACHE_MIDDLEWARE_KEY_PREFIX = PROJECT_APP
 
-AWS_S3_REGION_NAME = 'us-east-2'
+##################
+# LOCAL SETTINGS #
+##################
 
-AWS_S3_OBJECT_PARAMETERS = { 'CacheControl': 'max-age=86400', }
-AWS_S3_SECURE_URLS = AWS_QUERYSTRING_AUTH = False
-AWS_STORAGE_BUCKET_NAME = "www.pleromabiblechurch.org"
-AWS_S3_CUSTOM_DOMAIN = '%s.s3.amazonaws.com' % AWS_STORAGE_BUCKET_NAME
+# Allow any settings to be defined in local_settings.py which should be
+# ignored in your version control system allowing for settings to be
+# defined per machine.
 
-AWS_STATIC_LOCATION = 'static'
-STATICFILES_STORAGE = 'pleroma.storage_backends.StaticStorage'
+# Instead of doing "from .local_settings import *", we use exec so that
+# local_settings has full access to everything defined in this module.
+# Also force into sys.modules so it's visible to Django's autoreload.
 
-AWS_PUBLIC_MEDIA_LOCATION = 'media/public'
-DEFAULT_FILE_STORAGE = 'pleroma.storage_backends.PublicMediaStorage'
+f = os.path.join(PROJECT_APP_PATH, "local_settings.py")
+if os.path.exists(f):
+    import sys
+    import imp
+    module_name = "%s.local_settings" % PROJECT_APP
+    module = imp.new_module(module_name)
+    module.__file__ = f
+    sys.modules[module_name] = module
+    exec(open(f, "rb").read())
 
-AWS_PRIVATE_MEDIA_LOCATION = 'media/private'
-PRIVATE_FILE_STORAGE = 'pleroma.storage_backends.PrivateMediaStorage'
-
-STATIC_URL = "http://%s.s3.amazonaws.com/static/" % AWS_STORAGE_BUCKET_NAME 
-# URL prefix for static files.
-# Example: "http://media.lawrence.com/static/"
-#STATIC_URL = "/static/"
-# URL that handles the media served from MEDIA_ROOT. Make sure to use a
-# trailing slash.
-# Examples: "http://media.lawrence.com/media/", "http://example.com/media/"
-MEDIA_URL = "http://%s.s3.amazonaws.com/" % AWS_STORAGE_BUCKET_NAME
-
+if not DEBUG:
+        AWS_S3_REGION_NAME = 'us-east-2'
+        AWS_S3_OBJECT_PARAMETERS = { 'CacheControl': 'max-age=86400', }
+        AWS_S3_SECURE_URLS = AWS_QUERYSTRING_AUTH = False
+        AWS_STORAGE_BUCKET_NAME = "www.pleromabiblechurch.org"
+        AWS_S3_CUSTOM_DOMAIN = '%s.s3.amazonaws.com' % AWS_STORAGE_BUCKET_NAME
+        AWS_STATIC_LOCATION = 'static'
+        STATICFILES_STORAGE = 'pleroma.storage_backends.StaticStorage'
+        AWS_PUBLIC_MEDIA_LOCATION = 'media/public'
+        DEFAULT_FILE_STORAGE = 'pleroma.storage_backends.PublicMediaStorage'
+        AWS_PRIVATE_MEDIA_LOCATION = 'media/private'
+        PRIVATE_FILE_STORAGE = 'pleroma.storage_backends.PrivateMediaStorage'
+        STATIC_URL = "http://%s.s3.amazonaws.com/static/" % AWS_STORAGE_BUCKET_NAME 
+        MEDIA_URL = "http://%s.s3.amazonaws.com/" % AWS_STORAGE_BUCKET_NAME
 # Absolute path to the directory static files should be collected to.
 # Don't put anything in this directory yourself; store your static files
 # in apps' "static/" subdirectories and in STATICFILES_DIRS.
@@ -320,29 +330,6 @@ OPTIONAL_APPS = (
     PACKAGE_NAME_FILEBROWSER,
     PACKAGE_NAME_GRAPPELLI,
 )
-
-##################
-# LOCAL SETTINGS #
-##################
-
-# Allow any settings to be defined in local_settings.py which should be
-# ignored in your version control system allowing for settings to be
-# defined per machine.
-
-# Instead of doing "from .local_settings import *", we use exec so that
-# local_settings has full access to everything defined in this module.
-# Also force into sys.modules so it's visible to Django's autoreload.
-
-f = os.path.join(PROJECT_APP_PATH, "local_settings.py")
-if os.path.exists(f):
-    import sys
-    import imp
-    module_name = "%s.local_settings" % PROJECT_APP
-    module = imp.new_module(module_name)
-    module.__file__ = f
-    sys.modules[module_name] = module
-    exec(open(f, "rb").read())
-
 
 ####################
 # DYNAMIC SETTINGS #

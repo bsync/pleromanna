@@ -7,9 +7,8 @@ from django.contrib.auth import views as auth_views
 from django.views.i18n import set_language
 from django.views.generic import TemplateView
 
-from mezzanine.core.views import direct_to_template
 from mezzanine.conf import settings
-from manna.views import DocumentCreateView
+from manna.views import UploadView, CatalogView
 
 admin.autodiscover()
 
@@ -61,7 +60,8 @@ urlpatterns += [
     #url("^$", mezzanine.pages.views.page, {"slug": "/"}, name="home"),
 
     #Added to support uploading
-    url(r'^upload/$', DocumentCreateView.as_view(), name='upload'),
+    url(r'^upload/$', UploadView.as_view(), name='upload'),
+    url(r'^catalog/$', CatalogView.as_view(), name='catalog'),
     url(r'^login/$', auth_views.login, name='login'),
     url(r'^logout/$', auth_views.logout, name='logout'),
 
