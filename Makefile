@@ -14,3 +14,6 @@ migrated:
    
 dbshell:
 	bash -c 'source .penv/bin/activate && cd pleromanna && python3 manage.py dbshell'
+
+devdeploy:
+	bash -c 'source .penv/bin/activate && cd pleromanna && zappa update dev'
