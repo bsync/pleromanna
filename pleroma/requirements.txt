@@ -1,1 +1,5 @@
-Mezzanine==4.2.3
+zappa
+wagtail
+wagtailmenus
+wagtail-condensedinlinepanel
+django_storages

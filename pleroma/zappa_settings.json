@@ -1,0 +1,11 @@
+{
+    "dev": {
+        "aws_region": "us-east-2",
+        "django_settings": "pleromanna.settings.dev",
+        "profile_name": "default",
+        "project_name": "task",
+        "runtime": "python3.6",
+        "s3_bucket": "plerozappa",
+        "slim_handler": true
+    }
+}

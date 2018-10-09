@@ -1,0 +1,72 @@
+{% load static wagtailuserbar %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+     <title>
+         {% block title %}
+             {{ self.title }}
+         {% endblock %}
+         {% block title_suffix %}
+             {% with self.get_site.site_name as site_name %}
+                 {% if site_name %}- {{ site_name }}{% endif %}
+             {% endwith %}
+         {% endblock %}
+     </title>
+    <!-- Bootstrap core CSS -->
+    <link href="{% static "css/bootstrap.min.css" %}" rel="stylesheet">
+   <style>
+      body {background-image: url({%static "img/curtains.jpg"%});
+            background-position: center;
+            background-attachment: fixed;
+            background-size: cover;
+            color:white }
+      a { color: lightgreen; }
+      .bluedropped { background-color: darkblue; }
+      .blackdropped { background-color: black; }
+   </style>
+  </head>
+<body>
+ 
+    <!-- Navigation 
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark static-top">
+      <div class="container">
+        <a class="navbar-brand" href="#">Pleroma Online</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarResponsive">
+          <ul class="navbar-nav ml-auto">
+            <li class="nav-item active">
+              <a class="nav-link" href="#">Home
+                <span class="sr-only">(current)</span>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#">About</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#">Services</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#">Contact</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>-->
+
+{% block content %}
+   This is the base content. It should generally NOT be visible since
+   most every template that extends this template does so for the purpose
+   of providing new content against the site's base structure.
+{% endblock %}
+    <!-- Bootstrap core JavaScript -->
+    <script src="{% static "js/jquery.min.js" %}"></script>
+    <script src="{% static "js/bootstrap.bundle.min.js" %}"></script>
+  </body>
+</html>
