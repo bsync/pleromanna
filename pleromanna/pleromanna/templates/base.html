@@ -1,4 +1,4 @@
-{% load static wagtailuserbar %}
+{% load static menu_tags wagtailuserbar %}
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -28,37 +28,15 @@
       a { color: lightgreen; }
       .bluedropped { background-color: darkblue; }
       .blackdropped { background-color: black; }
+      .dropdown-menu { background-color: black; }
+      .dropdown-toggle { padding: 8px; }
    </style>
   </head>
 <body>
  
-    <!-- Navigation 
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark static-top">
-      <div class="container">
-        <a class="navbar-brand" href="#">Pleroma Online</a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
-          <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarResponsive">
-          <ul class="navbar-nav ml-auto">
-            <li class="nav-item active">
-              <a class="nav-link" href="#">Home
-                <span class="sr-only">(current)</span>
-              </a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="#">About</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="#">Services</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="#">Contact</a>
-            </li>
-          </ul>
-        </div>
-      </div>
-    </nav>-->
+   <nav class="navbar navbar-expand-lg navbar-dark bg-dark static-top">
+     {% main_menu template="menus/bootstrap3/main_menu_dropdown.html" %}
+   </nav>
 
 {% block content %}
    This is the base content. It should generally NOT be visible since
