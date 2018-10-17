@@ -1,5 +1,7 @@
 zappa
+zappa-django-utils
 wagtail
 wagtailmenus
 wagtail-condensedinlinepanel
 django_storages
+djongo

@@ -1,21 +1,27 @@
 from django.db import models
 
 from wagtail.core.models import Page
-from wagtailmenus.models import MenuPageMixin
-from wagtailmenus.panels import menupage_panel
-from wagtail.core.fields import StreamField
-from wagtail.core import blocks
-from wagtail.admin.edit_handlers import FieldPanel, StreamFieldPanel
-from wagtail.images.blocks import ImageChooserBlock
+from wagtail.core.fields import RichTextField
+from wagtail.admin.edit_handlers import FieldPanel
+from wagtail.images.edit_handlers import ImageChooserPanel
+from wagtailmenus.models import MenuPage
 
 
-class BasicPage(Page, MenuPageMixin):
-    settings_panels = [menupage_panel]
+class PleroPage(MenuPage):
+    image = models.ForeignKey(
+        'wagtailimages.Image',
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name='+'
+    )
+    paragraph = RichTextField(null=True)
 
-    body = StreamField([
-        ('heading', blocks.CharBlock(classname="full title")),
-        ('paragraph', blocks.RichTextBlock()),
-        ('image', ImageChooserBlock()),
-    ])
+    content_panels = Page.content_panels + [
+        ImageChooserPanel('image'),
+        FieldPanel('paragraph', classname='full'), ]
 
-    content_panels = Page.content_panels + [StreamFieldPanel('body')]
+
+class HomePage(PleroPage):
+    template = 'home_page.html'
+

@@ -53,6 +53,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'zappa_django_utils',
 ]
 
 MIDDLEWARE = [
@@ -94,13 +95,6 @@ WSGI_APPLICATION = 'pleromanna.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/2.0/ref/settings/#databases
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-    }
-}
 
 
 # Password validation
@@ -158,7 +152,7 @@ BASE_URL = 'http://example.com'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 STATICFILES_DIRS = [ os.path.join(PROJECT_DIR, 'static'), ]
 
-if os.getenv('FRAMEWORK') == 'Zappa':
+if os.environ.get('SERVERTYPE') == 'AWS Lambda':
     # S3 Storage stuff....
     AWS_DEFAULT_ACL = None
     AWS_STORAGE_BUCKET_NAME = "www.pleromabiblechurch.org"
@@ -170,5 +164,18 @@ if os.getenv('FRAMEWORK') == 'Zappa':
     STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
     DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
     STATIC_URL = 'https://%s/%s/' % (AWS_S3_CUSTOM_DOMAIN, AWS_LOCATION)
+    DATABASES = {
+        'default': {
+            'ENGINE': 'zappa_django_utils.db.backends.s3sqlite',
+            'NAME': 'db.sqlite3',
+            'BUCKET': 'plerozappa'
+        }
+    }
 else:
     STATIC_URL = '/static/'
+    DB_DIR = os.path.dirname(BASE_DIR)
+    DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': 'sqlite3.db', }
+    }

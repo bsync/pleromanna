@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% load static wagtailcore_tags %}
+{% load static wagtailcore_tags wagtailimages_tags %}
 
 {% block body_class %}template-homepage{% endblock %}
 
@@ -10,6 +10,7 @@
          object-fit: cover;
          width: 100%;
          height: 350px; }
+      div[class=image] { display: inline; }
    </style>
 
     <!-- Home Page Content -->
@@ -17,21 +18,19 @@
       <div class="row">
         <div class="col text-center">
           <h1 class="bluedropped mt-5">
-             Welcome to Pleroma Bible Church Online
+             {{ page.title }}
           </h1>
         </div>
       </div>
       
       <div class="row">
         <div class="col">
-            <img src="{%static "img/pleromites2018.jpeg"%}" class="img-fluid ihome">
+           {% image page.image max-800x600 class="img-fluid ihome" %}
         </div>
       </div>
 
-   {% block main %}
       <div class="blackdropped mt-3">
-         {% include_block page.body %}
+         {{ page.paragraph|richtext }}
       </div>
-   {% endblock %}
     </div>
 {% endblock %}

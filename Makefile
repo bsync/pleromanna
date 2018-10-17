@@ -1,7 +1,7 @@
-dev: .penv
+dev: 
 	bash -c 'source .penv/bin/activate && cd pleromanna && python3 manage.py runserver 0.0.0.0:8000'
 
-.penv: pleromanna/requirements.txt
+.penv: 
 	virtualenv --python=python3 .penv
 	bash -c 'source .penv/bin/activate && pip install -r pleromanna/requirements.txt'
 
@@ -17,3 +17,7 @@ dbshell:
 
 devdeploy:
 	bash -c 'source .penv/bin/activate && cd pleromanna && zappa update dev'
+
+dbpull:
+	cp sqlite3.db sqlite3.db.backup
+	aws s3 cp s3://plerozappa/db.sqlite3 sqlite3.db
