@@ -6,7 +6,6 @@ from wagtail.admin.edit_handlers import FieldPanel
 from wagtail.images.edit_handlers import ImageChooserPanel
 from wagtailmenus.models import MenuPage
 
-
 class PleroPage(MenuPage):
     image = models.ForeignKey(
         'wagtailimages.Image',
@@ -25,3 +24,5 @@ class PleroPage(MenuPage):
 class HomePage(PleroPage):
     template = 'home_page.html'
 
+class ContainerPage(Page):
+    pass

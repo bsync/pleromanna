@@ -24,11 +24,9 @@ BASE_DIR = os.path.dirname(PROJECT_DIR)
 # Application definition
 
 INSTALLED_APPS = [
+    'pleromanna.base',
     'storages',
-
-    'home',
     'search',
-
     'wagtail.contrib.forms',
     'wagtail.contrib.redirects',
     'wagtail.embeds',
@@ -43,10 +41,8 @@ INSTALLED_APPS = [
     'wagtail.contrib.modeladmin',
     'wagtailmenus',
     'condensedinlinepanel',
-
     'modelcluster',
     'taggit',
-
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -138,9 +134,6 @@ STATICFILES_FINDERS = [
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
 ]
 
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-MEDIA_URL = '/media/'
-
 
 # Wagtail settings
 
@@ -149,33 +142,22 @@ WAGTAIL_SITE_NAME = "pleromanna"
 # Base URL to use when referring to full URLs within the Wagtail admin backend -
 # e.g. in notification emails. Don't include '/admin' or a trailing slash
 BASE_URL = 'http://example.com'
+
+# Setup static and media file storage via AWS S3
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 STATICFILES_DIRS = [ os.path.join(PROJECT_DIR, 'static'), ]
 
-if os.environ.get('SERVERTYPE') == 'AWS Lambda':
-    # S3 Storage stuff....
-    AWS_DEFAULT_ACL = None
-    AWS_STORAGE_BUCKET_NAME = "www.pleromabiblechurch.org"
-    AWS_S3_CUSTOM_DOMAIN = 's3-us-east-2.amazonaws.com/%s' % AWS_STORAGE_BUCKET_NAME
-    AWS_S3_OBJECT_PARAMETERS = {
-        'CacheControl': 'max-age=86400',
-    }
-    AWS_LOCATION = 'static'
-    STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
-    DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
-    STATIC_URL = 'https://%s/%s/' % (AWS_S3_CUSTOM_DOMAIN, AWS_LOCATION)
-    DATABASES = {
-        'default': {
-            'ENGINE': 'zappa_django_utils.db.backends.s3sqlite',
-            'NAME': 'db.sqlite3',
-            'BUCKET': 'plerozappa'
-        }
-    }
-else:
-    STATIC_URL = '/static/'
-    DB_DIR = os.path.dirname(BASE_DIR)
-    DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': 'sqlite3.db', }
-    }
+AWS_DEFAULT_ACL = None
+AWS_STORAGE_BUCKET_NAME = "www.pleromabiblechurch.org"
+AWS_S3_CUSTOM_DOMAIN = 's3-us-east-2.amazonaws.com/%s' % AWS_STORAGE_BUCKET_NAME
+AWS_S3_OBJECT_PARAMETERS = { 'CacheControl': 'max-age=86400', }
+
+STATICFILES_LOCATION = 'static'
+STATICFILES_STORAGE = 's3_storage.StaticStorage'
+STATIC_URL = 'https://%s/%s/' % (AWS_S3_CUSTOM_DOMAIN, STATICFILES_LOCATION)
+
+MEDIAFILES_LOCATION = 'media'
+DEFAULT_FILE_STORAGE = 's3_storage.MediaStorage'
+MEDIA_URL = 'https://%s/%s/' % (AWS_S3_CUSTOM_DOMAIN, MEDIAFILES_LOCATION)
+MEDIA_URL = "/media/"

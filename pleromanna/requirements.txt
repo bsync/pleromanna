@@ -4,4 +4,4 @@ wagtail
 wagtailmenus
 wagtail-condensedinlinepanel
 django_storages
-djongo
+psycopg2-binary

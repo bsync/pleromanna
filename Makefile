@@ -15,9 +15,8 @@ migrated:
 dbshell:
 	bash -c 'source .penv/bin/activate && cd pleromanna && python3 manage.py dbshell'
 
-devdeploy:
+zappadev:
 	bash -c 'source .penv/bin/activate && cd pleromanna && zappa update dev'
 
-dbpull:
-	cp sqlite3.db sqlite3.db.backup
-	aws s3 cp s3://plerozappa/db.sqlite3 sqlite3.db
+zaptail:
+	bash -c 'source .penv/bin/activate && cd pleromanna && zappa tail dev --since 10m'

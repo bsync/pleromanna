@@ -4,15 +4,17 @@
 
 {% block body_class %}template-homepage{% endblock %}
 
-{% block content %}
-   <style>
-      .ihome { 
-         object-fit: cover;
-         width: 100%;
-         height: 350px; }
-      div[class=image] { display: inline; }
-   </style>
+{% block extra_style %} 
+<style>
+   .ihome { 
+      object-fit: cover;
+      width: 100%;
+      height: 350px; }
+   div[class=image] { display: inline; }
+</style>
+{% endblock %}
 
+{% block content %}
     <!-- Home Page Content -->
     <div class="container">
       <div class="row">
@@ -22,12 +24,14 @@
           </h1>
         </div>
       </div>
+      </br>
       
       <div class="row">
         <div class="col">
            {% image page.image max-800x600 class="img-fluid ihome" %}
         </div>
       </div>
+      </br>
 
       <div class="blackdropped mt-3">
          {{ page.paragraph|richtext }}
