@@ -1,4 +1,4 @@
-dev: 
+dev: .penv
 	bash -c 'source .penv/bin/activate && cd pleromanna && python3 manage.py runserver 0.0.0.0:8000'
 
 .penv: 
