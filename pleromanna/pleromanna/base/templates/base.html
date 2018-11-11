@@ -1,4 +1,4 @@
-{% load static menu_tags wagtailuserbar %}
+{% load static menu_tags wagtailimages_tags %}
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -28,15 +28,17 @@
             background-position: center;
             background-attachment: fixed;
             background-size: cover;
-            color: white }
-      a { color: lightgreen; }
-      .bluedropped { background-color: darkblue; }
-      .blackdropped { background-color: black; }
-      .dropdown-menu { background-color: black; }
-      .dropdown-toggle { padding: 8px; }
-      .nav { background-color: black; }
+            font-size: 20px;
+            margin-left: 5%; margin-right: 5%;
+            background-color: blue;
+            color: white; }
+      .nav > li > a:hover{ background-color: blue; text-decoration: none; }
+      .nav > li > a:focus { background-color: blue; text-decoration: none; }
+      .nav a { color: white; }
+      .nav-pills, .dropdown-menu, .dropdown-toggle { background-color: blue; }
+      .nav-item, .nav-link, .active, .dropdown-item { background-color: blue; }
+      {% block extra_style %} {% endblock %}
    </style>
-   {% block extra_style %} {% endblock %}
   </head>
    <body>
       {% main_menu template="menus/bootstrap3/pleromenu.html" %} 

@@ -2,6 +2,6 @@ zappa
 zappa-django-utils
 wagtail
 wagtailmenus
-wagtail-condensedinlinepanel
+wagtailcommonblocks
 django_storages
 psycopg2-binary

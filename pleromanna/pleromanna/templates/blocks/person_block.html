@@ -1,0 +1,9 @@
+{% load wagtailimages_tags %}
+
+<div class="person" >
+    {% image value.photo width-400 style="float: left; margin: 4px 10px 0px 0px; border: 1px solid #000000;" %}
+    <div style="background-color: darkblue; margin: 20px;">
+      <h2> {{value.first_name}} {{value.middle_name}} {{value.last_name}} </h2>
+      <p style="font-size: large;">{{value.biography}}</p>
+    </div>
+</div>
