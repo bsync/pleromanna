@@ -1,0 +1,13 @@
+{% load navigation_tags wagtailcore_tags %}
+
+<ul class="dropdown-menu" role="menu">
+  {% for child in menuitems_children %}
+    <li><a href="{% pageurl child %}" role="menuitem">{{ child.title }}</a></li>
+  {% endfor %}
+   {% for event in events %}
+      <li>
+         <a href="{{ parent.url }}#{{ forloop.counter }}" role="menuitem">
+            {{ event.value.heading }}</a>
+      </li>
+   {% endfor %}
+</ul>

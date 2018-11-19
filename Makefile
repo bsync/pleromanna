@@ -22,7 +22,7 @@ dbshell:
 
 zappadev:
 	bash -c 'source .penv/bin/activate && find . -name "*.pyc" -delete'
-	bash -c 'source .penv/bin/activate && cd pleromanna && zappa update dev'
+	bash -c 'source .penv/bin/activate && cd pleromanna && python3 manage.py collectstatic && zappa update dev'
 
 zaptail:
 	bash -c 'source .penv/bin/activate && cd pleromanna && zappa tail dev --since 10m'

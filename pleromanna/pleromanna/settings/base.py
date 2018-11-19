@@ -24,7 +24,7 @@ BASE_DIR = os.path.dirname(PROJECT_DIR)
 # Application definition
 
 INSTALLED_APPS = [
-    'pleromanna.base',
+    'pleromanna',
     'storages',
     'search',
     'commonblocks',
@@ -40,7 +40,6 @@ INSTALLED_APPS = [
     'wagtail.admin',
     'wagtail.core',
     'wagtail.contrib.modeladmin',
-    'wagtailmenus',
     'modelcluster',
     'taggit',
     'django.contrib.admin',
@@ -80,7 +79,6 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                'wagtailmenus.context_processors.wagtailmenus',
             ],
         },
     },
@@ -130,7 +128,6 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.0/howto/static-files/
 
 STATICFILES_FINDERS = [
-    'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
 ]
 
@@ -147,17 +144,19 @@ BASE_URL = 'http://example.com'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 STATICFILES_DIRS = [ os.path.join(PROJECT_DIR, 'static'), ]
-
-AWS_DEFAULT_ACL = None
-AWS_STORAGE_BUCKET_NAME = "www.pleromabiblechurch.org"
-AWS_S3_CUSTOM_DOMAIN = 's3-us-east-2.amazonaws.com/%s' % AWS_STORAGE_BUCKET_NAME
-AWS_S3_OBJECT_PARAMETERS = { 'CacheControl': 'max-age=86400', }
-
 STATICFILES_LOCATION = 'static'
-STATICFILES_STORAGE = 's3_storage.StaticStorage'
-STATIC_URL = 'https://%s/%s/' % (AWS_S3_CUSTOM_DOMAIN, STATICFILES_LOCATION)
-
+STATIC_URL = '/%s/' % STATICFILES_LOCATION
 MEDIAFILES_LOCATION = 'media'
-DEFAULT_FILE_STORAGE = 's3_storage.MediaStorage'
-MEDIA_URL = 'https://%s/%s/' % (AWS_S3_CUSTOM_DOMAIN, MEDIAFILES_LOCATION)
-MEDIA_URL = "/media/"
+MEDIA_URL = "/%s/" % MEDIAFILES_LOCATION
+
+if os.getenv('RDS_HOSTNAME') != 'localhost':
+    AWS_DEFAULT_ACL = None
+    AWS_STORAGE_BUCKET_NAME = "www.pleromabiblechurch.org"
+    AWS_S3_CUSTOM_DOMAIN = 's3-us-east-2.amazonaws.com/%s' % AWS_STORAGE_BUCKET_NAME
+    AWS_S3_OBJECT_PARAMETERS = { 'CacheControl': 'max-age=86400', }
+
+    STATICFILES_STORAGE = 's3_storage.StaticStorage'
+    STATIC_URL = 'https://%s/%s/' % (AWS_S3_CUSTOM_DOMAIN, STATICFILES_LOCATION)
+
+    DEFAULT_FILE_STORAGE = 's3_storage.MediaStorage'
+    MEDIA_URL = 'https://%s/%s/' % (AWS_S3_CUSTOM_DOMAIN, MEDIAFILES_LOCATION)

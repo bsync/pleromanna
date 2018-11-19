@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% load static wagtailcore_tags wagtailimages_tags %}
+
+{% block body_class %}template-homepage{% endblock %}
+
+{% block head-extra %} 
+   <style>
+      .event-times { color: white; background-color: black; text-align: center; }
+      .event-desc  { margin-top: 15px; margin-bottom: 5px; font-size: large }
+   </style>
+{% endblock %}
+
+{% block content %}
+   {% for eblock in page.events %}
+      {% include_block eblock with bid=forloop.counter %}
+   {% endfor %}
+{% endblock %}
