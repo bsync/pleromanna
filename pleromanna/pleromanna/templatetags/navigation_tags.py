@@ -1,8 +1,5 @@
 from django import template
-
 from wagtail.core.models import Page
-
-from pleromanna.models import FooterText
 
 
 register = template.Library()
@@ -21,9 +18,9 @@ def has_menu_children(page):
     # This is used by the top_menu property
     # get_children is a Treebeard API thing
     # https://tabo.pe/projects/django-treebeard/docs/4.0.1/api.html
-    # Allow for events to be menu items
-    if hasattr(page.specific, 'events'):
-        if len(page.specific.events) > 0:
+    # Allow for sections to be menu items
+    if hasattr(page.specific, 'sections'):
+        if len(page.specific.sections) > 0:
             return True
     return page.get_children().live().in_menu().exists()
 
@@ -75,7 +72,7 @@ def top_menu_children(context, parent, calling_page=None):
         menuitem.children = menuitem.get_children().live().in_menu()
     return {
         'parent': parent,
-        'events': getattr(parent.specific, 'events', None),
+        'sections': getattr(parent.specific, 'sections', None),
         'menuitems_children': menuitems_children,
         # required by the pageurl tag that we want to use within this template
         'request': context['request'],
@@ -96,13 +93,3 @@ def breadcrumbs(context):
         'request': context['request'],
     }
 
-
-@register.inclusion_tag('includes/footer_text.html', takes_context=True)
-def get_footer_text(context):
-    footer_text = ""
-    if FooterText.objects.first() is not None:
-        footer_text = FooterText.objects.first().body
-
-    return {
-        'footer_text': footer_text,
-    }

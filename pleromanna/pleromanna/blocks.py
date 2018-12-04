@@ -5,8 +5,9 @@ from commonblocks import blocks as common_blocks
 
 class PersonBlock(core_blocks.StructBlock):
     first_name = core_blocks.CharBlock()
-    middle_name = core_blocks.CharBlock()
+    middle_name = core_blocks.CharBlock(required=False)
     last_name = core_blocks.CharBlock()
+    titles = core_blocks.CharBlock(required=False)
     photo = image_blocks.ImageChooserBlock()
     biography = common_blocks.SimpleRichTextBlock()
 
@@ -16,7 +17,6 @@ class PersonBlock(core_blocks.StructBlock):
 
 
 class EventBlock(core_blocks.StructBlock):
-    heading = core_blocks.CharBlock()
     start_date = core_blocks.DateTimeBlock()
     stop_date = core_blocks.DateTimeBlock()
     photo = image_blocks.ImageChooserBlock(required=False)
@@ -25,4 +25,14 @@ class EventBlock(core_blocks.StructBlock):
     class Meta:
         icon = 'date'
         template = 'blocks/event_block.html'
+
+
+class ArticleBlock(core_blocks.StructBlock):
+    subject = core_blocks.CharBlock()
+    image = image_blocks.ImageChooserBlock(required=False)
+    paragraph = common_blocks.SimpleRichTextBlock()
+
+    class Meta:
+        icon = 'snippet'
+        template = 'blocks/article_block.html'
 

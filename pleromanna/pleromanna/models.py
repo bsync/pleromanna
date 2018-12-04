@@ -1,75 +1,77 @@
 from django.db import models
 
 from wagtail.core.models import Page
-from wagtail.core.fields import RichTextField
-from wagtail.core.fields import StreamField
-from wagtail.admin.edit_handlers import StreamFieldPanel
-from wagtail.core.blocks import CharBlock, RichTextBlock, ListBlock
-from wagtail.images import blocks as image_blocks
-from wagtail.images.edit_handlers import ImageChooserPanel
+from wagtail.core.fields import StreamField, RichTextField
+from wagtail.core.blocks import CharBlock
+from wagtail.admin.edit_handlers import StreamFieldPanel, MultiFieldPanel
 from wagtail.admin.edit_handlers import FieldPanel
-from wagtail.snippets.models import register_snippet
-from .blocks import PersonBlock, EventBlock
+from wagtail.images.edit_handlers import ImageChooserPanel
+from .blocks import EventBlock, PersonBlock, ArticleBlock
 
 
-class PleromaHomePage(Page):
-    heading = models.CharField(max_length=256)
-    image = models.ForeignKey('wagtailimages.Image', null=True,
-                              on_delete=models.SET_NULL)
-    paragraph = RichTextField()
-    content_panels = Page.content_panels + [
-                        FieldPanel('heading'),
-                        ImageChooserPanel('image'),
-                        FieldPanel('paragraph'), ]
+class ContextPage(Page):
+    parent_page_types=[]
+
+    @property
+    def sections(self):
+        try:
+            return [x for x in self.body if x.block_type == 'section']
+        except Exception:
+            return []
 
     def get_context(self, request):
-        context = super(PleromaHomePage, self).get_context(request)
+        context = super(ContextPage, self).get_context(request)
         # Add extra variables and return the updated context
         context['event_pages'] = EventPage.objects.live().order_by('year')
+        for x, section in enumerate(self.sections):
+            section.sid = x
+        context['sections'] = self.sections
         return context
 
 
-class PleromaPage(Page):
-    body = StreamField([
-        ('heading', CharBlock(classname="full title")),
-        ('subheading', CharBlock(classname="full title")),
-        ('paragraph', RichTextBlock()),
-        ('image', image_blocks.ImageChooserBlock()),
-        ('person', PersonBlock()),
-    ])
-
+class PleromaHomePage(ContextPage):
+    heading = models.CharField(max_length=250)
+    subheading = models.CharField(max_length=250, blank=True)
+    image = models.ForeignKey(
+        'wagtailimages.Image',
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name='+')
+    paragraph = RichTextField()
     content_panels = Page.content_panels + [
-        StreamFieldPanel('body'),
-    ]
+        FieldPanel('heading'),
+        FieldPanel('subheading'),
+        ImageChooserPanel('image'),
+        FieldPanel('paragraph', classname="full"), ]
+
+class PleromaPage(ContextPage):
+    body = StreamField([('section', CharBlock()),
+                        ('person', PersonBlock()),
+                        ('event', EventBlock()),
+                        ('article', ArticleBlock())])
+    content_panels = ContextPage.content_panels + [StreamFieldPanel('body')]
+    parent_page_types=[PleromaHomePage]
 
 
-class EventPage(Page):
-
+class EventPage(ContextPage):
     year = models.PositiveSmallIntegerField()
-    events = StreamField([('events', EventBlock())], blank=True)
-    content_panels = Page.content_panels + [
-                        FieldPanel('year'),
-                        StreamFieldPanel('events')]
+    body = StreamField([('section', CharBlock()),
+                        ('event', EventBlock())], blank=True)
+    content_panels = ContextPage.content_panels \
+                   + [FieldPanel('year'), StreamFieldPanel('body')]
+    parent_page_types=[PleromaHomePage]
 
+    @property
+    def event_sections(self):
+        sections = []
+        events = []
+        for block in self.body:
+            if block.block_type == 'section':
+                sections.append(block)
+            elif block.block_type == 'event':
+                events.append(block)
+        return zip(sections, events)
 
-@register_snippet
-class FooterText(models.Model):
-    """
-    This provides editable text for the site footer. Again it uses the
-    decorator `register_snippet` to allow it to be accessible via the admin. It
-    is made accessible on the template via a template tag defined in
-    base/templatetags/ navigation_tags.py
-    """
-    body = RichTextField()
-
-    panels = [
-        FieldPanel('body'),
-    ]
-
-    def __str__(self):
-        return "Footer text"
-
-    class Meta:
-        verbose_name_plural = 'Footer Text'
 
 

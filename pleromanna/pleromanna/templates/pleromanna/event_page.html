@@ -2,17 +2,22 @@
 
 {% load static wagtailcore_tags wagtailimages_tags %}
 
-{% block body_class %}template-homepage{% endblock %}
-
 {% block head-extra %} 
    <style>
+      .section     { color: white; background-color: blue; }
       .event-times { color: white; background-color: black; text-align: center; }
-      .event-desc  { margin-top: 15px; margin-bottom: 5px; font-size: large }
+      p { margin-top: 15px; margin-bottom: 5px; font-size: large; }
    </style>
 {% endblock %}
 
 {% block content %}
-   {% for eblock in page.events %}
-      {% include_block eblock with bid=forloop.counter %}
+   {% for eblock in page.body %}
+      {% if eblock.block_type == 'section' %}
+         <h2 class="section">{{ eblock.value }}</h2>
+      {% else %}
+         <div style="background-color: darkblue;">
+            {% include_block eblock %}
+         </div>
+      {% endif %}
    {% endfor %}
 {% endblock %}
