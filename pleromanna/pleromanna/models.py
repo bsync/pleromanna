@@ -10,7 +10,7 @@ from .blocks import EventBlock, PersonBlock, ArticleBlock
 
 
 class ContextPage(Page):
-    parent_page_types=[]
+    parent_page_types = []
 
     @property
     def sections(self):
@@ -44,6 +44,8 @@ class PleromaHomePage(ContextPage):
         FieldPanel('subheading'),
         ImageChooserPanel('image'),
         FieldPanel('paragraph', classname="full"), ]
+    parent_page_types = ['wagtailcore.Page']
+
 
 class PleromaPage(ContextPage):
     body = StreamField([('section', CharBlock()),
@@ -51,7 +53,7 @@ class PleromaPage(ContextPage):
                         ('event', EventBlock()),
                         ('article', ArticleBlock())])
     content_panels = ContextPage.content_panels + [StreamFieldPanel('body')]
-    parent_page_types=[PleromaHomePage]
+    parent_page_types = [PleromaHomePage]
 
 
 class EventPage(ContextPage):
@@ -59,8 +61,8 @@ class EventPage(ContextPage):
     body = StreamField([('section', CharBlock()),
                         ('event', EventBlock())], blank=True)
     content_panels = ContextPage.content_panels \
-                   + [FieldPanel('year'), StreamFieldPanel('body')]
-    parent_page_types=[PleromaHomePage]
+        + [FieldPanel('year'), StreamFieldPanel('body')]
+    parent_page_types = [PleromaHomePage]
 
     @property
     def event_sections(self):
