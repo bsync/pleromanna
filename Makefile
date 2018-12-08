@@ -1,6 +1,7 @@
 ldev: .penv
 	bash -c 'export RDS_HOSTNAME=localhost RDS_USERNAME=travis && source .penv/bin/activate && cd pleromanna && python3 manage.py makemigrations'
 	bash -c 'export RDS_HOSTNAME=localhost RDS_USERNAME=travis && source .penv/bin/activate && cd pleromanna && python3 manage.py migrate'
+	bash -c 'export RDS_HOSTNAME=localhost RDS_USERNAME=travis && source .penv/bin/activate && cd pleromanna && python3 manage.py collectstatic --no-input'
 	bash -c 'export RDS_HOSTNAME=localhost RDS_USERNAME=travis && source .penv/bin/activate && cd pleromanna && python3 manage.py runserver 0.0.0.0:8000'
 
 dev: .penv
