@@ -5,3 +5,4 @@ wagtailmenus
 wagtailcommonblocks
 django_storages
 psycopg2-binary
+unipath
