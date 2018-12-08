@@ -10,12 +10,15 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/2.0/ref/settings/
 """
 
-# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
+from unipath import Path
 
-PROJECT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-BASE_DIR = os.path.dirname(PROJECT_DIR)
+PROJECT_DIR = Path(__file__).ancestor(3)
 
+STATICFILES_DIRS = (
+    PROJECT_DIR.child("assets"),
+    PROJECT_DIR,
+)
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.0/howto/deployment/checklist/
@@ -59,7 +62,6 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.security.SecurityMiddleware',
-
     'wagtail.core.middleware.SiteMiddleware',
     'wagtail.contrib.redirects.middleware.RedirectMiddleware',
 ]
@@ -69,9 +71,7 @@ ROOT_URLCONF = 'pleromanna.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [
-            os.path.join(PROJECT_DIR, 'templates'),
-        ],
+        'DIRS': [ os.path.join(PROJECT_DIR, 'templates'), ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -128,6 +128,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.0/howto/static-files/
 
 STATICFILES_FINDERS = [
+    'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
 ]
 
@@ -140,16 +141,15 @@ WAGTAIL_SITE_NAME = "pleromanna"
 # e.g. in notification emails. Don't include '/admin' or a trailing slash
 BASE_URL = 'http://example.com'
 
-# Setup static and media file storage via AWS S3
-STATIC_ROOT = os.path.join(BASE_DIR, 'static')
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-STATICFILES_DIRS = [ os.path.join(PROJECT_DIR, 'static'), ]
+# Setup static and media file storage
+STATIC_ROOT = os.path.join(PROJECT_DIR, 'static')
+MEDIA_ROOT = os.path.join(PROJECT_DIR, 'media')
 STATICFILES_LOCATION = 'static'
 STATIC_URL = '/%s/' % STATICFILES_LOCATION
 MEDIAFILES_LOCATION = 'media'
 MEDIA_URL = "/%s/" % MEDIAFILES_LOCATION
 
-if os.getenv('RDS_HOSTNAME') != 'localhost':
+if os.getenv('RDS_HOSTNAME', 'localhost') != 'localhost':
     AWS_DEFAULT_ACL = None
     AWS_STORAGE_BUCKET_NAME = "www.pleromabiblechurch.org"
     AWS_S3_CUSTOM_DOMAIN = 's3-us-east-2.amazonaws.com/%s' % AWS_STORAGE_BUCKET_NAME
