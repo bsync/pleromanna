@@ -16,6 +16,16 @@ class PersonBlock(core_blocks.StructBlock):
         template = 'blocks/person_block.html'
 
 
+class PeopleBlock(core_blocks.StructBlock):
+    people = core_blocks.ListBlock(PersonBlock(required=False))
+    group_photo = image_blocks.ImageChooserBlock()
+    group_bio = common_blocks.SimpleRichTextBlock()
+
+    class Meta:
+        icon = 'user'
+        template = 'blocks/people_block.html'
+
+
 class EventBlock(core_blocks.StructBlock):
     start_date = core_blocks.DateTimeBlock()
     stop_date = core_blocks.DateTimeBlock()

@@ -26,3 +26,4 @@ DATABASES = {
          'PORT': os.environ.get('RDS_PORT', RDS_PORT),
     }
 }
+print("Using DATABASE {}".format(DATABASES))

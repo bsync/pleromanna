@@ -6,7 +6,7 @@ from wagtail.core.blocks import CharBlock
 from wagtail.admin.edit_handlers import StreamFieldPanel, MultiFieldPanel
 from wagtail.admin.edit_handlers import FieldPanel
 from wagtail.images.edit_handlers import ImageChooserPanel
-from .blocks import EventBlock, PersonBlock, ArticleBlock
+from .blocks import EventBlock, PersonBlock, PeopleBlock, ArticleBlock
 
 
 class ContextPage(Page):
@@ -50,6 +50,7 @@ class PleromaHomePage(ContextPage):
 class PleromaPage(ContextPage):
     body = StreamField([('section', CharBlock()),
                         ('person', PersonBlock()),
+                        ('people', PeopleBlock()),
                         ('event', EventBlock()),
                         ('article', ArticleBlock())])
     content_panels = ContextPage.content_panels + [StreamFieldPanel('body')]

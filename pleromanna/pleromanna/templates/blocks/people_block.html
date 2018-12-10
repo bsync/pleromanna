@@ -1,0 +1,17 @@
+{% load wagtailimages_tags %}
+
+<div class="people container-fluid" >
+   <div class="row">
+      <div class="col-xs-12" style="height:700px; overflow:hidden;">
+         {% image value.group_photo original style="width:100%;" %}
+      </div>
+   </div>
+   <div class="row">
+      <div class="col-xs-12" style="background-color: darkblue;">
+         {{ value.group_bio }}
+      </div>
+   </div>
+   {% for person in value.people %}
+      {% include "blocks/person_block.html" %} 
+   {% endfor %}
+</div>
