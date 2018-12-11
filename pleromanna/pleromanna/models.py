@@ -71,10 +71,12 @@ class EventPage(ContextPage):
         events = []
         for block in self.body:
             if block.block_type == 'section':
-                sections.append(block)
+                sections.insert(0, block)
             elif block.block_type == 'event':
-                events.append(block)
+                events.insert(0, block)
         return zip(sections, events)
 
+
+EventPage.parent_page_types.insert(0, EventPage)
 
 

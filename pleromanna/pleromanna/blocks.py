@@ -38,7 +38,7 @@ class EventBlock(core_blocks.StructBlock):
 
 
 class ArticleBlock(core_blocks.StructBlock):
-    subject = core_blocks.CharBlock()
+    subject = core_blocks.CharBlock(required=False)
     image = image_blocks.ImageChooserBlock(required=False)
     paragraph = common_blocks.SimpleRichTextBlock()
 

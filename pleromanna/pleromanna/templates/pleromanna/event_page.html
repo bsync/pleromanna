@@ -11,6 +11,7 @@
 {% endblock %}
 
 {% block content %}
+   <h3 style="text-align:center;">{{ page.year }}</h2>
    {% for eblock in page.body %}
       {% if eblock.block_type == 'section' %}
          <h2 class="section">{{ eblock.value }}</h2>
