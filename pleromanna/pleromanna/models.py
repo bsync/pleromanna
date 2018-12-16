@@ -1,15 +1,19 @@
 from django.db import models
+from django.utils import timezone
 
 from wagtail.core.models import Page
 from wagtail.core.fields import StreamField, RichTextField
-from wagtail.core.blocks import CharBlock
+from wagtail.core.blocks import CharBlock, ListBlock
 from wagtail.admin.edit_handlers import StreamFieldPanel, MultiFieldPanel
 from wagtail.admin.edit_handlers import FieldPanel
 from wagtail.images.edit_handlers import ImageChooserPanel
+from wagtail.images.blocks import ImageChooserBlock
+from wagtail.documents.blocks import DocumentChooserBlock
 from .blocks import EventBlock, PersonBlock, PeopleBlock, ArticleBlock
 
 
 class ContextPage(Page):
+    pub_date = models.DateTimeField()
     parent_page_types = []
 
     @property
@@ -22,11 +26,18 @@ class ContextPage(Page):
     def get_context(self, request):
         context = super(ContextPage, self).get_context(request)
         # Add extra variables and return the updated context
-        context['event_pages'] = EventPage.objects.live().order_by('year')
+        context['event_pages'] = EventPage.objects.live().order_by('pub_date')
+        recent_pages = ContextPage.objects.live()
+        context['recent_pages'] = recent_pages.order_by('-pub_date')[:5]
         for x, section in enumerate(self.sections):
             section.sid = x
         context['sections'] = self.sections
         return context
+
+    def save(self, *args, **kwargs):
+        """ On save, update timestamps """
+        self.pub_date = timezone.now()
+        return super(ContextPage, self).save(*args, **kwargs)
 
 
 class PleromaHomePage(ContextPage):
@@ -58,11 +69,10 @@ class PleromaPage(ContextPage):
 
 
 class EventPage(ContextPage):
-    year = models.PositiveSmallIntegerField()
     body = StreamField([('section', CharBlock()),
                         ('event', EventBlock())], blank=True)
     content_panels = ContextPage.content_panels \
-        + [FieldPanel('year'), StreamFieldPanel('body')]
+        + [StreamFieldPanel('body')]
     parent_page_types = [PleromaHomePage]
 
     @property
@@ -80,3 +90,27 @@ class EventPage(ContextPage):
 EventPage.parent_page_types.insert(0, EventPage)
 
 
+class ImageryPage(ContextPage):
+    imagery = StreamField([('section', CharBlock()),
+                          ('images', ListBlock(ImageChooserBlock()))])
+
+    content_panels = ContextPage.content_panels + [
+        StreamFieldPanel('imagery')
+    ]
+    parent_page_types = [PleromaPage]
+
+
+ImageryPage.parent_page_types.insert(0, ImageryPage)
+
+
+class DocsPage(ContextPage):
+    docs = StreamField([('section', CharBlock()),
+                        ('docs', ListBlock(DocumentChooserBlock()))])
+
+    content_panels = ContextPage.content_panels + [
+        StreamFieldPanel('docs')
+    ]
+    parent_page_types = [PleromaPage]
+
+
+DocsPage.parent_page_types.insert(0, DocsPage)

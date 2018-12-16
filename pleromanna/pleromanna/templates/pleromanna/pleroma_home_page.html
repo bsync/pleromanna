@@ -40,6 +40,15 @@
                      {% endfor %}
                   {% endfor %}
                   </ul>
+                  Recent Activity:</br>
+                  <ul>
+                  {% for repage in recent_pages %}
+                     <li> 
+                        <a href="{{repage.url}}">{{ repage.title }}</a> - 
+                        {{ repage.pub_date|date:'m-d' }}
+                     </li>
+                  {% endfor %}
+                  </ul>
             </div>
          </div>
          <div class="row">

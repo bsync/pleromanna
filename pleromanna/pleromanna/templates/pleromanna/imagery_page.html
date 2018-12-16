@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% load static wagtailcore_tags %}
+
+{% block header %}
+   {% include "includes/nav_menu.html" with menu_root_page=page %}
+{% endblock %}
+
+{% block content %}
+<div class="container">
+   {% for iblock in page.imagery %}
+   <div class="row">
+      <div class="col-sm-8 text-center">
+         {% include_block iblock %}
+      </div>
+   </div>
+   {% endfor %}
+</div>
+{% endblock %}
