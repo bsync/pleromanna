@@ -32,6 +32,9 @@ class ContextPage(Page):
         for x, section in enumerate(self.sections):
             section.sid = x
         context['sections'] = self.sections
+        mroot = self.get_ancestors().type(self.__class__).first()
+        context['menu_root'] = self if mroot is None else mroot
+
         return context
 
     def save(self, *args, **kwargs):
@@ -91,11 +94,12 @@ EventPage.parent_page_types.insert(0, EventPage)
 
 
 class ImageryPage(ContextPage):
-    imagery = StreamField([('section', CharBlock()),
-                          ('images', ListBlock(ImageChooserBlock()))])
+    body = StreamField(
+        [('section', CharBlock()),
+         ('images', ListBlock(ImageChooserBlock()))], blank=True)
 
     content_panels = ContextPage.content_panels + [
-        StreamFieldPanel('imagery')
+        StreamFieldPanel('body')
     ]
     parent_page_types = [PleromaPage]
 
@@ -104,11 +108,12 @@ ImageryPage.parent_page_types.insert(0, ImageryPage)
 
 
 class DocsPage(ContextPage):
-    docs = StreamField([('section', CharBlock()),
-                        ('docs', ListBlock(DocumentChooserBlock()))])
+    body = StreamField(
+        [('section', CharBlock()),
+         ('docs', ListBlock(DocumentChooserBlock()))], blank=True)
 
     content_panels = ContextPage.content_panels + [
-        StreamFieldPanel('docs')
+        StreamFieldPanel('body')
     ]
     parent_page_types = [PleromaPage]
 
