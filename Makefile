@@ -1,14 +1,13 @@
 ldev: 
 	bash -c 'export RDS_HOSTNAME=localhost RDS_USERNAME=travis RDS_DB_NAME=pleromadb && $(MAKE) dev'
 
-dev: pleromanna/requirements.txt
+dev: .penv
 	bash -c 'source .penv/bin/activate && cd pleromanna && python3 manage.py makemigrations'
 	bash -c 'source .penv/bin/activate && cd pleromanna && python3 manage.py migrate'
 	bash -c 'source .penv/bin/activate && cd pleromanna && python3 manage.py collectstatic --no-input'
-	bash -c 'source .penv/bin/activate && cd pleromanna && gunicorn -b 0.0.0.0:80 wsgi.py'
-#	bash -c 'source .penv/bin/activate && cd pleromanna && python3 manage.py runserver 0.0.0.0:8000'
+	bash -c 'source .penv/bin/activate && cd pleromanna && gunicorn -b 0.0.0.0:443 --certfile=/etc/letsencrypt/live/dev.pleromabiblechurch.org/fullchain.pem --keyfile=/etc/letsencrypt/live/dev.pleromabiblechurch.org/privkey.pem pleromanna.wsgi'
 
-pleromanna/requirements.txt: 
+.penv: pleromanna/requirements.txt
 	virtualenv --python=python3 .penv
 	bash -c 'source .penv/bin/activate && pip install -r pleromanna/requirements.txt'
 
