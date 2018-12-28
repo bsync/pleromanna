@@ -34,7 +34,7 @@
                      {% for section,event in epage.event_sections %}
                         <li> 
                            <a href="{{epage.url}}#{{forloop.counter}}">
-                              {{ section.value }}</a> - 
+                              {{ section.value|truncatechars:25 }}</a> - 
                            {{ event.value.start_date|date:'m-d' }}
                         </li>
                      {% endfor %}
@@ -44,7 +44,8 @@
                   <ul>
                   {% for repage in recent_pages %}
                      <li> 
-                        <a href="{{repage.url}}">{{ repage.title }}</a> - 
+                        <a href="{{repage.url}}">
+                           {{ repage.title|truncatechars:25 }}</a> - 
                         {{ repage.pub_date|date:'m-d' }}
                      </li>
                   {% endfor %}

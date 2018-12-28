@@ -1,13 +1,17 @@
-ldev: 
-	bash -c 'export RDS_HOSTNAME=localhost RDS_USERNAME=travis RDS_DB_NAME=pleromadb && $(MAKE) dev'
+ldev: .penv migrated collected
+	bash -c 'export RDS_HOSTNAME=localhost RDS_USERNAME=travis RDS_DB_NAME=pleromadb && source .penv/bin/activate && cd pleromanna && python3 manage.py runserver 0.0.0.0:8000'
 
-dev: .penv
-	bash -c 'source .penv/bin/activate && cd pleromanna && python3 manage.py makemigrations'
-	bash -c 'source .penv/bin/activate && cd pleromanna && python3 manage.py migrate'
-	bash -c 'source .penv/bin/activate && cd pleromanna && python3 manage.py collectstatic --no-input'
+dev: .penv migrated collected
 	bash -c 'source .penv/bin/activate && cd pleromanna && gunicorn -b 0.0.0.0:443 --certfile=/etc/letsencrypt/live/dev.pleromabiblechurch.org/fullchain.pem --keyfile=/etc/letsencrypt/live/dev.pleromabiblechurch.org/privkey.pem pleromanna.wsgi'
 
-.penv: pleromanna/requirements.txt
+collected:
+	bash -c 'source .penv/bin/activate && cd pleromanna && python3 manage.py collectstatic --no-input'
+
+migrated:
+	bash -c 'source .penv/bin/activate && cd pleromanna && python3 manage.py makemigrations'
+	bash -c 'source .penv/bin/activate && cd pleromanna && python3 manage.py migrate'
+
+environ: .penv pleromanna/requirements.txt
 	virtualenv --python=python3 .penv
 	bash -c 'source .penv/bin/activate && pip install -r pleromanna/requirements.txt'
 
@@ -19,10 +23,6 @@ dumpdb:
 prod: 
 	cd pleromanna && gunicorn -b 0.0.0.0:80 wsgi.py
 
-migrated:
-	bash -c 'source .penv/bin/activate && cd pleromanna && python3 manage.py makemigrations'
-	bash -c 'source .penv/bin/activate && cd pleromanna && python3 manage.py migrate'
-   
 dbshell:
 	bash -c 'source .penv/bin/activate && cd pleromanna && python3 manage.py dbshell'
 
