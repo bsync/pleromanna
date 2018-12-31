@@ -1,7 +1,10 @@
-ldev: .penv migrated collected
-	bash -c 'export RDS_HOSTNAME=localhost RDS_USERNAME=travis RDS_DB_NAME=pleromadb && source .penv/bin/activate && cd pleromanna && python3 manage.py runserver 0.0.0.0:8000'
+localdev: .penv
+	RDS_HOSTNAME=localhost RDS_USERNAME=travis RDS_DB_NAME=pleromadb $(MAKE) ldev
 
-dev: .penv migrated collected
+ldev: .penv migrated 
+	bash -c 'source .penv/bin/activate && cd pleromanna && python3 manage.py runserver 0.0.0.0:8000'
+
+dev: .penv migrated 
 	bash -c 'source .penv/bin/activate && cd pleromanna && gunicorn -b 0.0.0.0:443 --certfile=/etc/letsencrypt/live/dev.pleromabiblechurch.org/fullchain.pem --keyfile=/etc/letsencrypt/live/dev.pleromabiblechurch.org/privkey.pem pleromanna.wsgi'
 
 collected:
