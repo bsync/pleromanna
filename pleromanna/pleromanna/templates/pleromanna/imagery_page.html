@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% load static wagtailcore_tags %}
+{% load static wagtailcore_tags collection_tags %}
 
 {% block header %}
    {% include "includes/nav_menu.html" with menu_root_page=menu_root %}
@@ -10,9 +10,15 @@
 <div class="container">
    {% for iblock in page.body %}
    <div class="row">
-      <div class="col-sm-8 text-center">
-         {% include_block iblock %}
-      </div>
+      {% if iblock.block_type == 'collections' %}
+         <div class="col-sm-12 text-center">
+            {% render_image_collection iblock.value %}
+         </div>
+      {% else %}
+         <div class="col-sm-12" style="background-color: gray">
+            {% include_block iblock %}
+         </div>
+      {% endif %}
    </div>
    {% endfor %}
 </div>

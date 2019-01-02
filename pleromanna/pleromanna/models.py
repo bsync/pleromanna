@@ -9,6 +9,9 @@ from wagtail.admin.edit_handlers import FieldPanel
 from wagtail.images.edit_handlers import ImageChooserPanel
 from wagtail.images.blocks import ImageChooserBlock
 from wagtail.documents.blocks import DocumentChooserBlock
+from wagtail.snippets.blocks import SnippetChooserBlock
+from wagtailmodelchooser import register_model_chooser
+from wagtailmodelchooser.blocks import ModelChooserBlock
 from .blocks import EventBlock, PersonBlock, PeopleBlock, ArticleBlock
 
 
@@ -94,9 +97,13 @@ EventPage.parent_page_types.insert(0, EventPage)
 
 
 class ImageryPage(ContextPage):
+    import wagtail.core.models
+    register_model_chooser(wagtail.core.models.Collection)
     body = StreamField(
         [('section', CharBlock()),
-         ('images', ListBlock(ImageChooserBlock()))], blank=True)
+         ('images', ListBlock(ImageChooserBlock())),
+         ('collections', ModelChooserBlock('wagtailcore.Collection'))],
+        blank=True)
 
     content_panels = ContextPage.content_panels + [
         StreamFieldPanel('body')

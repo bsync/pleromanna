@@ -1,0 +1,16 @@
+{% load wagtailcore_tags wagtailimages_tags %}
+
+<div class="container" style="background-color: darkblue;">
+   {% for eachImage in images %}
+      <div class="row">
+         <div class="col-sm-12 text-center" style="background-color: black;">
+            {{ eachImage.title|lower|cut:" " }}  
+         </div>
+      </div>
+      <div class="row">
+         <div class="col-sm-12 text-center">
+            {% image eachImage max-800x600 class="img-fluid" %}
+         </div>
+      </div>
+   {% endfor %}
+</div>
