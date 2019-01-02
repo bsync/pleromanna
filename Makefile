@@ -8,7 +8,7 @@ ldev: .penv migrated
 	bash -c 'source .penv/bin/activate && cd pleromanna && python3 manage.py runserver 0.0.0.0:8000'
 
 dev: .penv migrated 
-	bash -c 'source .penv/bin/activate && cd pleromanna && gunicorn -b 0.0.0.0:443 --certfile=/etc/letsencrypt/live/dev.pleromabiblechurch.org/fullchain.pem --keyfile=/etc/letsencrypt/live/dev.pleromabiblechurch.org/privkey.pem pleromanna.wsgi'
+	bash -c 'source .penv/bin/activate && cd pleromanna && gunicorn -w 3 -b 0.0.0.0:443 --certfile=/etc/letsencrypt/live/dev.pleromabiblechurch.org/fullchain.pem --keyfile=/etc/letsencrypt/live/dev.pleromabiblechurch.org/privkey.pem pleromanna.wsgi --access-logfile -'
 
 collected:
 	bash -c 'source .penv/bin/activate && cd pleromanna && python3 manage.py collectstatic --no-input'
