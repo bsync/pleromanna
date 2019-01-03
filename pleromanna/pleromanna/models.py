@@ -37,6 +37,7 @@ class ContextPage(Page):
         context['sections'] = self.sections
         mroot = self.get_ancestors().type(self.__class__).first()
         context['menu_root'] = self if mroot is None else mroot
+        context['page_children'] = self.get_children()
 
         return context
 

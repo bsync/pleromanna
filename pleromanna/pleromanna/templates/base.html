@@ -21,6 +21,15 @@
 <content role="main">
     {% block content %}
     {% endblock content %}
+    {% for img_child_page in page_children %}
+      <div class="row">
+         <div class="col-sm-12" style="background-color: black">
+            <a href="{{ img_child_page.url }}" class="btn btn-block">
+               {{ img_child_page.title }}
+            </a>
+         </div>
+      </div>
+    {% endfor %}
 </content>
 {#% block breadcrumbs %#}
 {# breadcrumbs is defined in base/templatetags/navigation_tags.py #}
