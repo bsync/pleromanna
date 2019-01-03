@@ -10,4 +10,4 @@ register = template.Library()
 @register.inclusion_tag('tags/image_collection.html')
 def render_image_collection(collection):
     collected_images = Image.objects.filter(collection=collection.id)
-    return {'images': collected_images}
+    return {'images': collected_images.order_by("title")}
