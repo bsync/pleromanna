@@ -1,4 +1,4 @@
-wagtail
+wagtail==2.3
 wagtailcommonblocks
 wagtail-modelchooser
 django_storages
