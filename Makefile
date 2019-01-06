@@ -1,14 +1,15 @@
 local_dev: 
-	RDS_HOSTNAME=localhost RDS_USERNAME=travis RDS_DB_NAME=pleromadb $(MAKE) ldev
+	RDS_HOSTNAME=localhost RDS_USERNAME=dbsync RDS_DB_NAME=pleromadb $(MAKE) ldev
 
 local_collected:
-	RDS_HOSTNAME=localhost RDS_USERNAME=travis RDS_DB_NAME=pleromadb $(MAKE) collected
+	RDS_HOSTNAME=localhost RDS_USERNAME=dbsync RDS_DB_NAME=pleromadb $(MAKE) collected
 
 ldev: .penv migrated 
 	bash -c 'source .penv/bin/activate && cd pleromanna && python3 manage.py runserver 0.0.0.0:8000'
 
-dev: .penv migrated 
-	bash -c 'source .penv/bin/activate && cd pleromanna && gunicorn -w 3 -b 0.0.0.0:443 --certfile=/etc/letsencrypt/live/dev.pleromabiblechurch.org/fullchain.pem --keyfile=/etc/letsencrypt/live/dev.pleromabiblechurch.org/privkey.pem pleromanna.wsgi --access-logfile -'
+run: .penv migrated 
+	bash -c 'source .penv/bin/activate && cd pleromanna && gunicorn -k gthread -w4 -b localhost:8000 --certfile=fullchain.pem --keyfile=privkey.pem pleromanna.wsgi --error-logfile=err.capture.log --access-logfile=access.capture.log'
+	#bash -c 'source .penv/bin/activate && cd pleromanna && gunicorn -k gthread -w4 -b 0.0.0.0:443 --certfile=/etc/letsencrypt/live/dev.pleromabiblechurch.org/fullchain.pem --keyfile=/etc/letsencrypt/live/dev.pleromabiblechurch.org/privkey.pem pleromanna.wsgi --error-logfile=err.capture.log --access-logfile=access.capture.log'
 
 collected:
 	bash -c 'source .penv/bin/activate && cd pleromanna && python3 manage.py collectstatic --no-input'
@@ -25,10 +26,7 @@ migrated:
 #Drop the current local database and clone the remote database in it's place
 dumpdb:
 	dropdb pleromadb; createdb pleromadb
-	pg_dump -C -h pleromadb.cqxcmysb4mot.us-east-2.rds.amazonaws.com -U dbsync pleromadb | psql -h localhost -U travis pleromadb
-
-prod: 
-	cd pleromanna && gunicorn -b 0.0.0.0:80 wsgi.py
+	pg_dump -C -h pleromadb.cqxcmysb4mot.us-east-2.rds.amazonaws.com -U dbsync pleromadb | psql -U dbsync pleromadb
 
 shell:
 	bash -c 'source .penv/bin/activate && cd pleromanna && python3 manage.py shell'
