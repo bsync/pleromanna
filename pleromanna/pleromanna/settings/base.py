@@ -139,7 +139,7 @@ STATIC_URL = '/%s/' % STATICFILES_LOCATION
 MEDIAFILES_LOCATION = 'media'
 MEDIA_URL = "/%s/" % MEDIAFILES_LOCATION
 
-if os.getenv('RDS_HOSTNAME', 'notta') != 'localhost':
+if os.getenv('HOSTNAME', 'notta') != 'spade':
     AWS_DEFAULT_ACL = None
     AWS_STORAGE_BUCKET_NAME = "www.pleromabiblechurch.org"
     AWS_S3_CUSTOM_DOMAIN = 's3-us-east-2.amazonaws.com/%s' % AWS_STORAGE_BUCKET_NAME
@@ -151,4 +151,7 @@ if os.getenv('RDS_HOSTNAME', 'notta') != 'localhost':
     DEFAULT_FILE_STORAGE = 's3_storage.MediaStorage'
     MEDIA_URL = 'https://%s/%s/' % (AWS_S3_CUSTOM_DOMAIN, MEDIAFILES_LOCATION)
 
-print("Using storage at {}".format(STATIC_URL))
+print("static storage at {}".format(STATIC_URL))
+print("media storage at {}".format(MEDIA_URL))
+
+CSRF_TRUSTED_ORIGINS=['.pleromabiblechurch.org']
