@@ -153,5 +153,4 @@ if os.getenv('HOSTNAME', 'notta') != 'spade':
 
 print("static storage at {}".format(STATIC_URL))
 print("media storage at {}".format(MEDIA_URL))
-
 CSRF_TRUSTED_ORIGINS=['.pleromabiblechurch.org']
