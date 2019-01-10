@@ -7,8 +7,11 @@ local_collected:
 ldev: .penv migrated 
 	bash -c 'source .penv/bin/activate && cd pleromanna && python3 manage.py runserver 0.0.0.0:8000'
 
-run: .penv migrated 
-	bash -c 'source .penv/bin/activate && cd pleromanna && gunicorn -w3 -b unix:/tmp/gunicorn.sock pleromanna.wsgi'
+stop: 
+	kill -INT $$(cat pleromanna/gunicorn.pid) || true
+
+run: .penv migrated stop
+	bash -c 'source .penv/bin/activate && cd pleromanna && (gunicorn -w3 -b unix:/tmp/gunicorn.sock pleromanna.wsgi & echo $$! > gunicorn.pid)'
 
 collected:
 	bash -c 'source .penv/bin/activate && cd pleromanna && python3 manage.py collectstatic --no-input'
