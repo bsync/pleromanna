@@ -53,8 +53,7 @@ def top_menu(context, parent, calling_page=None):
         'calling_page': calling_page,
         'menuitems': menuitems,
         # required by the pageurl tag that we want to use within this template
-        'request': context['request'],
-    }
+        'request': context['request'], }
 
 
 # Retrieves the children of the top menu items for the drop downs
@@ -75,8 +74,7 @@ def top_menu_children(context, parent, calling_page=None):
         'sections': getattr(parent.specific, 'sections', None),
         'menuitems_children': menuitems_children,
         # required by the pageurl tag that we want to use within this template
-        'request': context['request'],
-    }
+        'request': context['request'], }
 
 
 @register.inclusion_tag('tags/breadcrumbs.html', takes_context=True)
@@ -88,8 +86,5 @@ def breadcrumbs(context):
     else:
         ancestors = Page.objects.ancestor_of(
             self, inclusive=True).filter(depth__gt=1)
-    return {
-        'ancestors': ancestors,
-        'request': context['request'],
-    }
+    return { 'ancestors': ancestors, 'request': context['request'], }
 

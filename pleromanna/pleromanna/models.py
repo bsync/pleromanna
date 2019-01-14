@@ -7,12 +7,12 @@ from wagtail.core.blocks import CharBlock, ListBlock
 from wagtail.admin.edit_handlers import StreamFieldPanel, MultiFieldPanel
 from wagtail.admin.edit_handlers import FieldPanel
 from wagtail.images.edit_handlers import ImageChooserPanel
-from wagtail.images.blocks import ImageChooserBlock
-from wagtail.documents.blocks import DocumentChooserBlock
 from wagtail.snippets.blocks import SnippetChooserBlock
-from wagtailmodelchooser import register_model_chooser
-from wagtailmodelchooser.blocks import ModelChooserBlock
-from .blocks import EventBlock, PersonBlock, PeopleBlock, ArticleBlock
+from .blocks import SectionBlock, EventBlock
+from .blocks import PersonBlock, PeopleBlock, ArticleBlock
+from .blocks import CollectionChooserBlock
+from .blocks import SectionedImageChooserBlock
+from .blocks import SectionedDocChooserBlock
 
 
 class ContextPage(Page):
@@ -21,10 +21,12 @@ class ContextPage(Page):
 
     @property
     def sections(self):
-        try:
-            return [x for x in self.body if x.block_type == 'section']
-        except Exception:
-            return []
+        sblocks = []
+        for field in getattr(self, 'body', []):
+            if isinstance(field.block, SectionBlock):
+                field.block.sid = len(sblocks)
+                sblocks.append(field)
+        return sblocks
 
     def get_context(self, request):
         context = super(ContextPage, self).get_context(request)
@@ -32,9 +34,6 @@ class ContextPage(Page):
         context['event_pages'] = EventPage.objects.live().order_by('pub_date')
         recent_pages = ContextPage.objects.live()
         context['recent_pages'] = recent_pages.order_by('-pub_date')[:5]
-        for x, section in enumerate(self.sections):
-            section.sid = x
-        context['sections'] = self.sections
         mroot = self.get_ancestors().type(self.__class__).first()
         context['menu_root'] = self if mroot is None else mroot
         context['page_children'] = self.get_children()
@@ -66,8 +65,7 @@ class PleromaHomePage(ContextPage):
 
 
 class PleromaPage(ContextPage):
-    body = StreamField([('section', CharBlock()),
-                        ('person', PersonBlock()),
+    body = StreamField([('person', PersonBlock()),
                         ('people', PeopleBlock()),
                         ('event', EventBlock()),
                         ('article', ArticleBlock())])
@@ -76,34 +74,18 @@ class PleromaPage(ContextPage):
 
 
 class EventPage(ContextPage):
-    body = StreamField([('section', CharBlock()),
-                        ('event', EventBlock())], blank=True)
+    body = StreamField([('event', EventBlock())], blank=True)
     content_panels = ContextPage.content_panels \
         + [StreamFieldPanel('body')]
     parent_page_types = [PleromaHomePage]
-
-    @property
-    def event_sections(self):
-        sections = []
-        events = []
-        for block in self.body:
-            if block.block_type == 'section':
-                sections.insert(0, block)
-            elif block.block_type == 'event':
-                events.insert(0, block)
-        return zip(sections, events)
-
 
 EventPage.parent_page_types.insert(0, EventPage)
 
 
 class ImageryPage(ContextPage):
-    import wagtail.core.models
-    register_model_chooser(wagtail.core.models.Collection)
     body = StreamField(
-        [('section', CharBlock()),
-         ('images', ListBlock(ImageChooserBlock())),
-         ('collections', ModelChooserBlock('wagtailcore.Collection'))],
+        [('image_chooser', SectionedImageChooserBlock()),
+         ('collection_chooser', CollectionChooserBlock())],
         blank=True)
 
     content_panels = ContextPage.content_panels + [
@@ -117,8 +99,7 @@ ImageryPage.parent_page_types.insert(0, ImageryPage)
 
 class DocsPage(ContextPage):
     body = StreamField(
-        [('section', CharBlock()),
-         ('docs', ListBlock(DocumentChooserBlock()))], blank=True)
+        [('doc_chooser', SectionedDocChooserBlock())], blank=True)
 
     content_panels = ContextPage.content_panels + [
         StreamFieldPanel('body')

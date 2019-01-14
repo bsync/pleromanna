@@ -1,6 +1,5 @@
-wagtail==2.3
+wagtail
 wagtailcommonblocks
-wagtail-modelchooser
 django_storages
 psycopg2-binary
 unipath

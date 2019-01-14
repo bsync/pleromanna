@@ -2,6 +2,10 @@
 
 <div class="person container-fluid" >
    <div class="row">
+      <div id="{{ bid }}" 
+           style="background-color: black; padding-left: 10px;">
+         <hr> {{ value.section }} <hr>
+      </div>
       <div class="col-xs-2" style="height:200px; overflow:hidden;">
          {% image value.photo original style="width:100%;" %}
       </div>

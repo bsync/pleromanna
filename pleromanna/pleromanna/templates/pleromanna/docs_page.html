@@ -1,19 +1,5 @@
-{% extends "base.html" %}
-
-{% load static wagtailcore_tags %}
+{% extends "pleromanna/pleroma_page.html" %}
 
 {% block header %}
    {% include "includes/nav_menu.html" with menu_root_page=menu_root %}
-{% endblock %}
-
-{% block content %}
-<div class="container">
-   {% for dblock in page.body %}
-   <div class="row" style="background-color:black;">
-      <div class="col-sm-8 text-center" >
-         {% include_block dblock %}
-      </div>
-   </div>
-   {% endfor %}
-</div>
 {% endblock %}

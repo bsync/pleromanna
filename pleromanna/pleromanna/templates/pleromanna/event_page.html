@@ -1,6 +1,4 @@
-{% extends "base.html" %}
-
-{% load static wagtailcore_tags wagtailimages_tags %}
+{% extends "pleromanna/pleroma_page.html" %}
 
 {% block head-extra %} 
    <style>
@@ -10,15 +8,6 @@
    </style>
 {% endblock %}
 
-{% block content %}
-   <h3 style="text-align:center;">{{ page.year }}</h2>
-   {% for eblock in page.body %}
-      {% if eblock.block_type == 'section' %}
-         <h2 class="section">{{ eblock.value }}</h2>
-      {% else %}
-         <div style="background-color: darkblue;">
-            {% include_block eblock %}
-         </div>
-      {% endif %}
-   {% endfor %}
+{% block header %}
+   {% include "includes/nav_menu.html" with menu_root_page=menu_root %}
 {% endblock %}

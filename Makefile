@@ -28,6 +28,9 @@ migrated:
 dumpdb:
 	(test -f pdb.dump && mv pdb.dump pdb.dump.old) && pg_dump pleromadb > pdb.dump
 
+syncdb:
+	(test -f pdb.dump && mv pdb.dump pdb.dump.old) && pg_dump -h dev.pleromabiblechurch.org -U dbsync pleromadb > pdb.dump && cat pdb.dump | psql pleromadb
+
 shell:
 	bash -c 'source .penv/bin/activate && cd pleromanna && python3 manage.py shell'
 

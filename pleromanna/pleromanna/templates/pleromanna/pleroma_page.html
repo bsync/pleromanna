@@ -1,14 +1,8 @@
 {% extends "base.html" %}
-{% load static wagtailcore_tags wagtailimages_tags %}
+{% load wagtailcore_tags %}
+
 {% block content %} 
    {% for bblock in page.body %}
-      {% if bblock.block_type == 'section'  %}
-         <div id="{{ bblock.sid }}" 
-              style="background-color: black; padding-left: 10px;">
-            <hr> {{ bblock.value }} <hr>
-         </div>
-      {% else %}
-         {% include_block bblock %}
-      {% endif %}
+      {% include_block bblock with bid=bblock.id %}
    {% endfor %}
 {% endblock %}

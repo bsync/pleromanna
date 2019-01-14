@@ -1,25 +1,5 @@
-{% extends "base.html" %}
-
-{% load static wagtailcore_tags collection_tags %}
+{% extends "pleromanna/pleroma_page.html" %}
 
 {% block header %}
    {% include "includes/nav_menu.html" with menu_root_page=menu_root %}
-{% endblock %}
-
-{% block content %}
-   <div class="container">
-      {% for iblock in page.body %}
-         <div class="row">
-            {% if iblock.block_type == 'collections' %}
-               <div class="col-sm-12 text-center">
-                  {% render_image_collection iblock.value %}
-               </div>
-            {% else %}
-               <div class="col-sm-12" style="background-color: gray">
-                  {% include_block iblock %}
-               </div>
-            {% endif %}
-         </div>
-      {% endfor %}
-   </div>
 {% endblock %}

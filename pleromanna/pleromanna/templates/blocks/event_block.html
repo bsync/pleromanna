@@ -1,8 +1,13 @@
 {% load wagtailimages_tags %}
 
-<div id="{{ bid }}" class="event" >
+<div id="{{ bid }}" class="row event">
    <h2 class="event-times"> Starting {{ value.start_date }}</h2>
-         {% image value.photo width-800 %}
-         <p class="event-desc">{{value.description}}</p>
+   <div style="background-color: blue; padding-left: 10px;">
+      <hr> {{ value.section }} <hr>
+   </div>
+   {% image value.photo width-800 %}
+   <div style="background-color: black; padding-left: 10px;">
+      <p class="event-desc"> {{value.description}} </p>
+   </div>
    <h2 class="event-times">Ending {{ value.stop_date }}</h2>
 </div>
