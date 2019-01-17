@@ -30,14 +30,12 @@
             <div class="col-sm-4 block-paragraph"> 
                   Events:</br>
                   <ul>
-                  {% for epage in event_pages %}
-                     {% for section,event in epage.event_sections %}
-                        <li> 
-                           <a href="{{epage.url}}#{{forloop.counter}}">
-                              {{ section.value|truncatechars:25 }}</a> - 
-                           {{ event.value.start_date|date:'m-d' }}
-                        </li>
-                     {% endfor %}
+                  {% for eblock in event_blocks %}
+                     <li> 
+                        <a href="{% pageurl page.events %}#{{eblock.id}}">
+                           {{ eblock.value.section|truncatechars:25 }}</a> - 
+                        {{ eblock.value.start_date|date:'m-d' }}
+                     </li>
                   {% endfor %}
                   </ul>
                   Recent Activity:</br>

@@ -31,7 +31,8 @@ class ContextPage(Page):
     def get_context(self, request):
         context = super(ContextPage, self).get_context(request)
         # Add extra variables and return the updated context
-        context['event_pages'] = EventPage.objects.live().order_by('pub_date')
+
+        context['event_blocks'] = EventPage.latestEvents(5)
         recent_pages = ContextPage.objects.live()
         context['recent_pages'] = recent_pages.order_by('-pub_date')[:5]
         mroot = self.get_ancestors().type(self.__class__).first()
@@ -63,6 +64,10 @@ class PleromaHomePage(ContextPage):
         FieldPanel('paragraph', classname="full"), ]
     parent_page_types = ['wagtailcore.Page']
 
+    @property
+    def events(self):
+        return EventPage.objects.get(title="Events")
+
 
 class PleromaPage(ContextPage):
     body = StreamField([('person', PersonBlock()),
@@ -75,9 +80,16 @@ class PleromaPage(ContextPage):
 
 class EventPage(ContextPage):
     body = StreamField([('event', EventBlock())], blank=True)
-    content_panels = ContextPage.content_panels \
-        + [StreamFieldPanel('body')]
+    content_panels = ContextPage.content_panels + [StreamFieldPanel('body')]
     parent_page_types = [PleromaHomePage]
+
+    @classmethod
+    def latestEvents(cls, count):
+        ep = cls.objects.live().in_menu().get(title="Events")
+        epbl = list(ep.body)
+        epbl.sort(key=lambda x: x.value['start_date'], reverse=True)
+        return epbl[:count]
+
 
 EventPage.parent_page_types.insert(0, EventPage)
 
@@ -98,12 +110,10 @@ ImageryPage.parent_page_types.insert(0, ImageryPage)
 
 
 class DocsPage(ContextPage):
-    body = StreamField(
-        [('doc_chooser', SectionedDocChooserBlock())], blank=True)
+    body = StreamField([('doc_chooser', SectionedDocChooserBlock())],
+                       blank=True)
 
-    content_panels = ContextPage.content_panels + [
-        StreamFieldPanel('body')
-    ]
+    content_panels = ContextPage.content_panels + [StreamFieldPanel('body')]
     parent_page_types = [PleromaPage]
 
 

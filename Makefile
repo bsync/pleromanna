@@ -4,6 +4,9 @@ local_dev:
 local_collected:
 	RDS_HOSTNAME=localhost RDS_USERNAME=dbsync RDS_DB_NAME=pleromadb $(MAKE) collected
 
+local_shell:
+	RDS_HOSTNAME=localhost RDS_USERNAME=dbsync RDS_DB_NAME=pleromadb $(MAKE) shell
+
 ldev: .penv migrated 
 	bash -c 'source .penv/bin/activate && cd pleromanna && python3 manage.py runserver 0.0.0.0:8000'
 
@@ -28,8 +31,11 @@ migrated:
 dumpdb:
 	(test -f pdb.dump && mv pdb.dump pdb.dump.old) && pg_dump pleromadb > pdb.dump
 
+pulldb:
+	(test -f pdb.dump && mv pdb.dump pdb.dump.old) && pg_dump -h dev.pleromabiblechurch.org -U dbsync pleromadb > pdb.dump
+  
 syncdb:
-	(test -f pdb.dump && mv pdb.dump pdb.dump.old) && pg_dump -h dev.pleromabiblechurch.org -U dbsync pleromadb > pdb.dump && cat pdb.dump | psql pleromadb
+	dropdb pleromadb && cat pdb.dump | psql pleromadb
 
 shell:
 	bash -c 'source .penv/bin/activate && cd pleromanna && python3 manage.py shell'
