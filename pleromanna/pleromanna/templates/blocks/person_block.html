@@ -3,13 +3,13 @@
 <div class="person container-fluid" >
    <div class="row">
       <div id="{{ bid }}" 
-           style="background-color: black; padding-left: 10px;">
+           style="background-color: #ccc; padding-left: 10px;">
          <hr> {{ value.section }} <hr>
       </div>
       <div class="col-xs-2" style="height:200px; overflow:hidden;">
          {% image value.photo original style="width:100%;" %}
       </div>
-      <div class="col-xs-10" style="background-color: darkblue;">
+      <div class="col-xs-10" style="background-color: #ccc;">
          <h2>{{value.first_name}} {{value.middle_name}} {{value.last_name}}</h2>
          <h3>{{value.titles}}</h3>
          <p style="font-size: large;">{{value.biography}}</p>

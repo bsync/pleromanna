@@ -3,13 +3,13 @@ from django.utils import timezone
 
 from wagtail.core.models import Page
 from wagtail.core.fields import StreamField, RichTextField
-from wagtail.core.blocks import CharBlock, ListBlock
+from wagtail.core.blocks import CharBlock, ListBlock, URLBlock
 from wagtail.admin.edit_handlers import StreamFieldPanel, MultiFieldPanel
 from wagtail.admin.edit_handlers import FieldPanel
 from wagtail.images.edit_handlers import ImageChooserPanel
 from wagtail.snippets.blocks import SnippetChooserBlock
 from .blocks import SectionBlock, EventBlock
-from .blocks import PersonBlock, PeopleBlock, ArticleBlock
+from .blocks import PersonBlock, PeopleBlock, ArticleBlock, LinkBlock
 from .blocks import CollectionChooserBlock
 from .blocks import SectionedImageChooserBlock
 from .blocks import SectionedDocChooserBlock
@@ -73,9 +73,12 @@ class PleromaPage(ContextPage):
     body = StreamField([('person', PersonBlock()),
                         ('people', PeopleBlock()),
                         ('event', EventBlock()),
-                        ('article', ArticleBlock())])
+                        ('article', ArticleBlock()),
+                        ('link', LinkBlock()),])
     content_panels = ContextPage.content_panels + [StreamFieldPanel('body')]
-    parent_page_types = [PleromaHomePage]
+
+
+PleromaPage.parent_page_types = [PleromaHomePage, PleromaPage]
 
 
 class EventPage(ContextPage):

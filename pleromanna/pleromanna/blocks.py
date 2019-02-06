@@ -83,3 +83,10 @@ class CollectionChooserBlock(SectionBlock):
         icon = 'snippet'
         template = 'blocks/image_chooser_block.html'
 
+class LinkBlock(SectionBlock):
+    link = core_blocks.URLBlock()
+    paragraph = common_blocks.SimpleRichTextBlock(required=False)
+
+    class Meta:
+        icon = 'anchor'
+        template = 'blocks/link_block.html'
