@@ -143,6 +143,7 @@ if os.getenv('HOSTNAME', 'notta') != 'spade':
     AWS_STORAGE_BUCKET_NAME = "www.pleromabiblechurch.org"
     AWS_S3_CUSTOM_DOMAIN = 's3-us-east-2.amazonaws.com/%s' % AWS_STORAGE_BUCKET_NAME
     AWS_S3_OBJECT_PARAMETERS = { 'CacheControl': 'max-age=86400', }
+    AWS_S3_FILE_OVERWRITE = False
 
     STATICFILES_STORAGE = 's3_storage.StaticStorage'
     STATIC_URL = 'https://%s/%s/' % (AWS_S3_CUSTOM_DOMAIN, STATICFILES_LOCATION)

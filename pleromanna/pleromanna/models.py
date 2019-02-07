@@ -56,11 +56,13 @@ class PleromaHomePage(ContextPage):
         blank=True,
         on_delete=models.SET_NULL,
         related_name='+')
+    notice = RichTextField(blank=True)
     paragraph = RichTextField()
     content_panels = Page.content_panels + [
         FieldPanel('heading'),
         FieldPanel('subheading'),
         ImageChooserPanel('image'),
+        FieldPanel('notice'), 
         FieldPanel('paragraph', classname="full"), ]
     parent_page_types = ['wagtailcore.Page']
 

@@ -26,6 +26,10 @@
          <div class="row">
             <div class="col-sm-8">
                {% image page.image max-800x600 class="img-fluid ihome" %}
+               <div class="row" style="background-color: black; color: red; margin: 20px;">
+                  <div class="col-sm-3 text-right">Notice:</div>
+                  <div class="col-sm-9 text-left"> {{ page.notice|richtext }} </div>
+               </div>
             </div>
             <div class="col-sm-4 block-paragraph"> 
                   Events:</br>
