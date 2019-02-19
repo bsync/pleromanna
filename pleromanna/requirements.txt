@@ -1,7 +1,9 @@
 wagtail
 wagtailcommonblocks
+wagtailmedia
 django_storages
 psycopg2-binary
 unipath
 gunicorn
 boto3
+opencv-python

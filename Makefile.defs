@@ -1,0 +1,40 @@
+define exenv =
+	. .penv/bin/activate
+	./$(1)
+endef
+
+define gunicorn =
+	(. .penv/bin/activate
+	gunicorn -w$(1) -b unix:/tmp/gunicorn.sock pleromanna.wsgi 
+	echo $$! > gunicorn.pid)
+endef
+
+define devmake =
+	RDS_HOSTNAME=localhost RDS_USERNAME=travis RDS_DB_NAME=pleromadb \
+	$(MAKE) $(1)
+endef 
+
+define collectstatic =
+	. .penv/bin/activate
+	./manage.py collectstatic -i wagtail* -i common* -i admin* --no-input
+endef 
+
+define dumpdb =
+	test -f pdb.dump && mv pdb.dump pdb.dump.old
+	pg_dump -h dev.pleromabiblechurch.org -U dbsync pleromadb > pdb.dump
+	dropdb pleromadb 
+	createdb pleromadb 
+	cat pdb.dump | psql pleromadb
+endef 
+
+define certbot_install =
+	cat /etc/apt/sources.list | grep -c certbot || (
+		sudo apt-get install software-properties-common
+		sudo add-apt-repository universe
+		sudo add-apt-repository ppa:certbot/certbot
+		sudo apt-get update
+		sudo apt-get install certbot python-certbot-nginx )
+	test -f /etc/letsencrypt/live/dev.pleromabiblechurch.org || \
+		sudo certbot --nginx -d dev.pleromabiblechurch.org
+endef
+

@@ -2,9 +2,12 @@
 
 <div class="container" style="background-color: darkblue;">
    {% for eachImage in images %}
-      <div class="row">
-         <div class="col-sm-12 text-center" style="background-color: #ccc;">
+      <div class="row" style="background-color: #ccc;">
+         <div class="col-sm-8">
             {{ eachImage.title|lower|cut:" " }}  
+         </div>
+         <div class="col-sm-4"> 
+            <a href="{{ page.url }}">back to the top</a>
          </div>
       </div>
       <div class="row">

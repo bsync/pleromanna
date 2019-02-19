@@ -6,7 +6,7 @@
 *.pyo
 *.db
 local_settings.py
-pleromanna/media/*
+media/*
 
 # Elastic Beanstalk Files
 .elasticbeanstalk/*

@@ -1,4 +1,4 @@
-{% load navigation_tags static wagtailuserbar %}
+{% load navigation_tags static wagtailuserbar wagtailcore_tags %}
 
 {% block head %}
     {% include "includes/head.html" %}
@@ -10,6 +10,11 @@
 {% block header %}
    {% include "includes/nav_menu.html" %}
 {% endblock header %}
+
+{#% block breadcrumbs %#}
+   {# breadcrumbs is defined in base/templatetags/navigation_tags.py #}
+   {#% breadcrumbs %#}
+{#% endblock breadcrumbs %#}
 
 {% block head-extra %}
 {% endblock head-extra %}
@@ -32,10 +37,6 @@
       </div>
     {% endfor %}
 </content>
-{#% block breadcrumbs %#}
-{# breadcrumbs is defined in base/templatetags/navigation_tags.py #}
-{#% breadcrumbs %#}
-{#% endblock breadcrumbs %#}
     <hr>
     <!-- Footer -->
     <footer>

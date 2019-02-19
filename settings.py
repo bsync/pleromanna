@@ -8,21 +8,17 @@ https://docs.djangoproject.com/en/2.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/2.0/ref/settings/
 """
-
-import os
+import os, socket
 from unipath import Path
 
-PROJECT_DIR = Path(__file__).ancestor(3)
-
-STATICFILES_DIRS = ( PROJECT_DIR.child("assets"), )
-
+PROJECT_DIR = Path(__file__).ancestor(1)
 INSTALLED_APPS = [
-    'pleromanna',
-    'storages',
-    'search',
-    'commonblocks',
-    'wagtail.contrib.forms',
-    'wagtail.contrib.redirects',
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
     'wagtail.embeds',
     'wagtail.sites',
     'wagtail.users',
@@ -32,15 +28,16 @@ INSTALLED_APPS = [
     'wagtail.search',
     'wagtail.admin',
     'wagtail.core',
+    'wagtailmedia',
+    'wagtail.contrib.forms',
+    'wagtail.contrib.redirects',
     'wagtail.contrib.modeladmin',
+    'search',
     'modelcluster',
     'taggit',
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
+    'storages',
+    'commonblocks',
+    'pleromanna',
 ]
 
 MIDDLEWARE = [
@@ -134,11 +131,11 @@ BASE_URL = 'http://example.com'
 STATIC_ROOT = os.path.join(PROJECT_DIR, 'static')
 MEDIA_ROOT = os.path.join(PROJECT_DIR, 'media')
 STATICFILES_LOCATION = 'static'
-STATIC_URL = '/%s/' % STATICFILES_LOCATION
+STATIC_URL = "/%s/" % STATICFILES_LOCATION
 MEDIAFILES_LOCATION = 'media'
 MEDIA_URL = "/%s/" % MEDIAFILES_LOCATION
 
-if os.getenv('HOSTNAME', 'notta') != 'spade':
+if socket.gethostname() != 'spade':
     AWS_DEFAULT_ACL = None
     AWS_STORAGE_BUCKET_NAME = "www.pleromabiblechurch.org"
     AWS_S3_CUSTOM_DOMAIN = 's3-us-east-2.amazonaws.com/%s' % AWS_STORAGE_BUCKET_NAME
@@ -154,3 +151,20 @@ if os.getenv('HOSTNAME', 'notta') != 'spade':
 print("static storage at {}".format(STATIC_URL))
 print("media storage at {}".format(MEDIA_URL))
 CSRF_TRUSTED_ORIGINS=['.pleromabiblechurch.org']
+WAGTAILMEDIA_MEDIA_MODEL='pleromanna.PleroMedia'
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+try: from local import *
+except ImportError: pass
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.environ.get('RDS_DB_NAME', RDS_DB_NAME),
+         'USER': os.environ.get('RDS_USERNAME', RDS_USERNAME),
+         'PASSWORD': os.environ.get('RDS_PASSWORD', RDS_PASSWORD),
+         'HOST': os.environ.get('RDS_HOSTNAME', RDS_HOSTNAME),
+         'PORT': os.environ.get('RDS_PORT', RDS_PORT),
+    }
+}
+print("Using DATABASE {}".format(DATABASES))
