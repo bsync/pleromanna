@@ -4,22 +4,22 @@ run: .penv .nginx migrated stop
 	$(call gunicorn,3)
 
 run_dev_server: .penv migrated 
-	$(call exenv,manage.py runserver 0.0.0.0:8000)
+	$(call exenv,python manage.py runserver 0.0.0.0:8000)
 
 stop: 
-	kill -INT $$(cat pleromanna/gunicorn.pid) || true
+	kill -INT $$(cat gunicorn.pid) || true
 
 pyshell:
-	$(call exenv,manage.py shell)
+	$(call exenv,python manage.py shell)
 
 collected:
 	$(call collectstatic)
 
 migrated:
 	echo "First make migrations..."
-	$(call exenv,manage.py makemigrations pleromanna)
+	$(call exenv,python manage.py makemigrations pleromanna)
 	echo "then migrate..."
-	$(call exenv,manage.py migrate)
+	$(call exenv,python manage.py migrate)
 
 bash:
 	@echo "PS1='django> '" > /tmp/rc
@@ -44,20 +44,9 @@ devmigrated:
 
 
 # Under the hood targets
-
-.certbot:
-	$(call certbot_install)
-
 .nginx: 
-	# My dev machine is named 'spade' and I don't use certs on it
-	[[ $(hostname) -ne "spade" ]] && $(MAKE) .certbot
-	sudo cp nginx.conf /etc/nginx/nginx.conf
-	which nginx || sudo apt install nginx
-	which nginx && echo "Nginx installation detected."
-	test -f /usr/local/nginx/logs/nginx.pid || sudo nginx&
-	test -f /usr/local/nginx/logs/nginx.pid || sleep 3
-	test -f /usr/local/nginx/logs/nginx.pid && echo "Nginx process detected."
-
+	$(call nginx_install)
+	$(call certbot_install)
 
 .penv: pleromanna/requirements.txt
 	virtualenv --python=python3 .penv
@@ -68,7 +57,7 @@ syncdb:
 	$(call dumpdb)
 
 dbshell:
-	$(call exenv,manage.py dbshell)
+	$(call exenv,python manage.py dbshell)
 
 deploy:
 	sudo (apt install -y postgres)

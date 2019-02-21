@@ -1,11 +1,11 @@
 define exenv =
 	. .penv/bin/activate
-	./$(1)
+	$(1)
 endef
 
 define gunicorn =
 	(. .penv/bin/activate
-	gunicorn -w$(1) -b unix:/tmp/gunicorn.sock pleromanna.wsgi 
+	gunicorn -w$(1) -b localhost:8080 pleromanna.wsgi & 
 	echo $$! > gunicorn.pid)
 endef
 
@@ -28,13 +28,36 @@ define dumpdb =
 endef 
 
 define certbot_install =
-	cat /etc/apt/sources.list | grep -c certbot || (
-		sudo apt-get install software-properties-common
-		sudo add-apt-repository universe
-		sudo add-apt-repository ppa:certbot/certbot
-		sudo apt-get update
-		sudo apt-get install certbot python-certbot-nginx )
-	test -f /etc/letsencrypt/live/dev.pleromabiblechurch.org || \
-		sudo certbot --nginx -d dev.pleromabiblechurch.org
+	if [ -f .dev ]; then
+	   echo "Skipping install and configure of cerbot on dev!"
+	 else
+	   echo "Attempting to install and configure cerbot!"
+	   cat /etc/apt/sources.list | grep -c certbot || (
+		   sudo apt-get install software-properties-common
+		   sudo add-apt-repository universe
+		   sudo add-apt-repository ppa:certbot/certbot
+		   sudo apt-get update
+		   sudo apt-get install certbot python-certbot-nginx )
+	   test -f /etc/letsencrypt/live/dev.pleromabiblechurch.org || \
+		   sudo certbot --nginx -d dev.pleromabiblechurch.org
+	 fi
 endef
 
+define nginx_install =
+	if [ -f .dev ]; then
+	   echo "Skipping install and configure of nginx on dev!"
+	else
+	   echo "Attempting to install and configure nginx!"
+	   which nginx || sudo apt install nginx
+	   which nginx && echo "Nginx installation detected."
+	   cmp nginx.conf /etc/nginx/nginx.conf
+	   CMPSTAT="$$?"
+	   if [ $${CMPSTAT} -eq 0 ]; then
+		   echo "nginx already configured."
+	   else
+		   echo "copying nginx configuration."
+		   sudo cp nginx.conf /etc/nginx/nginx.conf
+		   sudo service nginx restart
+	   fi
+	fi
+endef

@@ -10,6 +10,8 @@ https://docs.djangoproject.com/en/2.0/ref/settings/
 """
 import os, socket
 from unipath import Path
+try: from local import *
+except ImportError: pass
 
 PROJECT_DIR = Path(__file__).ancestor(1)
 INSTALLED_APPS = [
@@ -142,10 +144,10 @@ if socket.gethostname() != 'spade':
     AWS_S3_OBJECT_PARAMETERS = { 'CacheControl': 'max-age=86400', }
     AWS_S3_FILE_OVERWRITE = False
 
-    STATICFILES_STORAGE = 's3_storage.StaticStorage'
+    STATICFILES_STORAGE = 'pleromanna.s3_storage.StaticStorage'
     STATIC_URL = 'https://%s/%s/' % (AWS_S3_CUSTOM_DOMAIN, STATICFILES_LOCATION)
 
-    DEFAULT_FILE_STORAGE = 's3_storage.MediaStorage'
+    DEFAULT_FILE_STORAGE = 'pleromanna.s3_storage.MediaStorage'
     MEDIA_URL = 'https://%s/%s/' % (AWS_S3_CUSTOM_DOMAIN, MEDIAFILES_LOCATION)
 
 print("static storage at {}".format(STATIC_URL))
@@ -153,9 +155,6 @@ print("media storage at {}".format(MEDIA_URL))
 CSRF_TRUSTED_ORIGINS=['.pleromabiblechurch.org']
 WAGTAILMEDIA_MEDIA_MODEL='pleromanna.PleroMedia'
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-
-try: from local import *
-except ImportError: pass
 
 DATABASES = {
     'default': {
@@ -168,3 +167,9 @@ DATABASES = {
     }
 }
 print("Using DATABASE {}".format(DATABASES))
+
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+SECURE_SSL_REDIRECT = True
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
+
