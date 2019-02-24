@@ -3,7 +3,8 @@ wagtailcommonblocks
 wagtailmedia
 django_storages
 psycopg2-binary
+opencv-python
+PyVimeo
 unipath
 gunicorn
 boto3
-opencv-python

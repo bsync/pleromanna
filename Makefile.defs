@@ -61,3 +61,8 @@ define nginx_install =
 	   fi
 	fi
 endef
+
+#libcurl is required for PyVimeo package to operate correctly
+define curl_install =
+	sudo apt install libcurl4-openssl-dev libssl-dev
+endef
