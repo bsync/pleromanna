@@ -17,6 +17,7 @@ from wagtail.images import blocks as image_blocks
 from wagtailmedia.blocks import AbstractMediaChooserBlock
 from wagtail.core import blocks as core_blocks
 from commonblocks import blocks as common_blocks
+from .vimeoresource import vc
 
 
 class SectionBlock(core_blocks.StructBlock):
@@ -84,15 +85,6 @@ class SectionedDocChooserBlock(SectionBlock):
     class Meta:
         icon = 'doc'
         template = 'blocks/doc_chooser_block.html'
-
-
-class SectionedVimeoBlock(SectionBlock):
-    album = EmbedBlock(required=False)
-    video = EmbedBlock(required=False)
-
-    class Meta:
-        icon = 'media'
-        template = 'blocks/sectioned_vimeo_block.html'
 
 
 class CollectionChooserBlock(SectionBlock):
@@ -211,6 +203,32 @@ ImageryPage.parent_page_types = [ImageryPage, PleromaPage]
 DocsPage.parent_page_types = [DocsPage, PleromaPage]
 
 
+class SectionedVimeoBlock(SectionBlock):
+    album = core_blocks.ChoiceBlock(choices=vc.listAlbumChoices, required=True)
+
+    def clean(self, value):
+        result = super(SectionedVimeoBlock, self).clean(value)
+        if not result['section']:
+            result['section'] = vc.album_name_for(result['album'])
+        return result
+
+    class Meta:
+        icon = 'media'
+        template = 'blocks/sectioned_vimeo_block.html'
+
+        class SectionedVimeoValue(core_blocks.StructValue):
+            def album_name(self):
+                album = self.get('album')
+                # page = self.get('page')
+                return vc.album_name_for(album)
+
+            def embed_html(self):
+                album = self.get('album')
+                # page = self.get('page')
+                return vc.album_embed_html_for(album)
+        value_class = SectionedVimeoValue
+
+
 class LessonsPage(ContextPage):
     body = StreamField(
             [('vimeo_block', SectionedVimeoBlock()),
@@ -220,11 +238,20 @@ class LessonsPage(ContextPage):
     parent_page_types = [PleromaPage]
     content_panels = ContextPage.content_panels + [StreamFieldPanel('body')]
 
-    class Meta:
-        verbose_name = "Lessons page"
-
 
 LessonsPage.parent_page_types.insert(0, LessonsPage)
+
+
+class LatestLessonsPage(ContextPage):
+
+    parent_page_types = [LessonsPage]
+
+    def get_context(self, request):
+        context = super(LatestLessonsPage, self).get_context(request)
+        lv = context['latest'] = vc.latestVideos
+
+        # Add extra variables and return the updated context
+        return context
 
 
 class Series(models.Model):

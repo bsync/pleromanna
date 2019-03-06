@@ -10,7 +10,6 @@ define gunicorn =
 endef
 
 define devmake =
-	RDS_HOSTNAME=localhost RDS_USERNAME=travis RDS_DB_NAME=pleromadb \
 	$(MAKE) $(1)
 endef 
 
@@ -24,7 +23,7 @@ define dumpdb =
 	pg_dump -h dev.pleromabiblechurch.org -U dbsync pleromadb > pdb.dump
 	dropdb pleromadb 
 	createdb pleromadb 
-	cat pdb.dump | psql pleromadb
+	cat pdb.dump | psql -U dbsync pleromadb
 endef 
 
 define certbot_install =

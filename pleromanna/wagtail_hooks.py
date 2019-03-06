@@ -27,5 +27,5 @@ class SubSeriesAdmin(ModelAdmin):
     search_fields = ('title',)
 
 
-modeladmin_register(SeriesAdmin)
-modeladmin_register(SubSeriesAdmin)
+#modeladmin_register(SeriesAdmin)
+#modeladmin_register(SubSeriesAdmin)
