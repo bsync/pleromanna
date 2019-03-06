@@ -1,0 +1,17 @@
+{% extends "pleromanna/pleroma_page.html" %}
+
+{% block content %} 
+   Latest Videos:
+   <div class="container-fluid">
+   {% for vid in latest %}
+      {% cycle True False as newrow silent %}
+      {% if newrow %}
+      <div class="row">
+         <div class="col-sm-6"> {{ vid|safe }} </div>
+      {% else %}
+         <div class="col-sm-6"> {{ vid|safe }} </div>
+      </div>
+      {% endif %}
+   {% endfor %}
+   </div>
+{% endblock %}
