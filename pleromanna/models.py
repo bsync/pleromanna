@@ -128,7 +128,7 @@ class ContextPage(Page):
         context['recent_pages'] = recent_pages.order_by('-pub_date')[:5]
         mroot = self.get_ancestors().type(self.__class__).first()
         context['menu_root'] = self if mroot is None else mroot
-
+        context['page_children'] = Page.objects.child_of(self)
         return context
 
     def save(self, *args, **kwargs):
