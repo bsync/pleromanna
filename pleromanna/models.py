@@ -229,22 +229,9 @@ class SectionedVimeoBlock(SectionBlock):
         value_class = SectionedVimeoValue
 
 
-class LessonsPage(ContextPage):
-    body = StreamField(
-            [('vimeo_block', SectionedVimeoBlock()),
-             ('collection_block', CollectionChooserBlock()),
-             ('link_block', LinkBlock()),
-             ], blank=True)
-    parent_page_types = [PleromaPage]
-    content_panels = ContextPage.content_panels + [StreamFieldPanel('body')]
-
-
-LessonsPage.parent_page_types.insert(0, LessonsPage)
-
-
 class LatestLessonsPage(ContextPage):
 
-    parent_page_types = [LessonsPage]
+    parent_page_types = [PleromaPage]
 
     def get_context(self, request):
         context = super(LatestLessonsPage, self).get_context(request)
@@ -252,6 +239,16 @@ class LatestLessonsPage(ContextPage):
 
         # Add extra variables and return the updated context
         return context
+
+
+class LessonsPage(ContextPage):
+    body = StreamField(
+            [('vimeo_block', SectionedVimeoBlock()),
+             ('collection_block', CollectionChooserBlock()),
+             ('link_block', LinkBlock()),
+             ], blank=True)
+    parent_page_types = [LatestLessonsPage]
+    content_panels = ContextPage.content_panels + [StreamFieldPanel('body')]
 
 
 class Series(models.Model):
