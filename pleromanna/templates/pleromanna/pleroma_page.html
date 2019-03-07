@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% load wagtailcore_tags %}
 {% block content %} 
+   {{ block.super }}
    {% for bblock in page.body %}
       {% include_block bblock with bid=bblock.id %}
    {% endfor %}

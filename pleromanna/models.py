@@ -123,8 +123,6 @@ class ContextPage(Page):
 
     def get_context(self, request):
         context = super(ContextPage, self).get_context(request)
-        # Add extra variables and return the updated context
-
         context['event_blocks'] = EventPage.latestEvents(5)
         recent_pages = ContextPage.objects.live()
         context['recent_pages'] = recent_pages.order_by('-pub_date')[:5]
@@ -229,23 +227,18 @@ class SectionedVimeoBlock(SectionBlock):
         value_class = SectionedVimeoValue
 
 
-class LatestLessonsPage(ContextPage):
-
-    parent_page_types = [PleromaPage]
-
-    def get_context(self, request):
-        context = super(LatestLessonsPage, self).get_context(request)
-        lv = context['latest'] = vc.latestVideos
-
-        # Add extra variables and return the updated context
-        return context
-
-
 class LessonsPage(ContextPage):
     body = StreamField(
             [('vimeo_block', SectionedVimeoBlock()),
              ('collection_block', CollectionChooserBlock()),
              ('link_block', LinkBlock()),
              ], blank=True)
-    parent_page_types = [LatestLessonsPage]
     content_panels = ContextPage.content_panels + [StreamFieldPanel('body')]
+
+    def get_context(self, request):
+        context = super(LessonsPage, self).get_context(request)
+        if self.get_parent().specific_class == PleromaPage:
+            context['latest'] = vc.latestVideos
+        return context
+
+LessonsPage.parent_page_types = [PleromaPage, LessonsPage]

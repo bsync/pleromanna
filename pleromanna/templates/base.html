@@ -25,7 +25,6 @@
 <hr>
 <content role="main">
     {% block content %}
-    {% endblock content %}
     {# Iterate over child pages adding a link to each one #}
     {% for child_page in page_children %}
       <div class="row">
@@ -36,17 +35,15 @@
          </div>
       </div>
     {% endfor %}
+    {% endblock content %}
 </content>
     <hr>
     <!-- Footer -->
     <footer>
         {% include "includes/footer.html" %}
     </footer>
-
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
-
 </body>
-
 </html>
