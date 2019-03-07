@@ -118,7 +118,6 @@ WAGTAIL_SITE_NAME = "pleromanna"
 print("static storage at {}".format(STATIC_URL))
 print("media storage at {}".format(MEDIA_URL))
 CSRF_TRUSTED_ORIGINS=['.pleromabiblechurch.org']
-WAGTAILMEDIA_MEDIA_MODEL='pleromanna.PleroMedia'
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 DATABASES = {
