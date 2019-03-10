@@ -1,4 +1,4 @@
-{% load static %}
+{% load static wagtailimages_tags %}
 
 <!DOCTYPE html>
 <!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
@@ -29,7 +29,8 @@
 
     <!-- Theme CSS -->
    <style>
-      body {background-image: url({%static "images/curtains2.jpg"%});
+{% image backdrop width-400 as tmp_photo %}
+body {background-image: url('{{ tmp_photo.url }}');
             background-position: center;
             background-attachment: fixed;
             background-size: cover;

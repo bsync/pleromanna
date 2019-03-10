@@ -129,6 +129,8 @@ class ContextPage(Page):
         mroot = self.get_ancestors().type(self.__class__).first()
         context['menu_root'] = self if mroot is None else mroot
         context['page_children'] = Page.objects.child_of(self)
+        hp = Page.objects.type(PleromaHomePage).first().specific
+        context['backdrop'] = hp.backdrop
         return context
 
     def save(self, *args, **kwargs):
@@ -172,12 +174,19 @@ class PleromaHomePage(ContextPage):
         blank=True,
         on_delete=models.SET_NULL,
         related_name='+')
+    backdrop = models.ForeignKey(
+        'wagtailimages.Image',
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name='+')
     notice = RichTextField(blank=True)
     paragraph = RichTextField()
     content_panels = ContextPage.content_panels + [
         FieldPanel('heading'),
         FieldPanel('subheading'),
         ImageChooserPanel('image'),
+        ImageChooserPanel('backdrop'),
         FieldPanel('notice'),
         FieldPanel('paragraph', classname="full"), ]
 
@@ -240,5 +249,6 @@ class LessonsPage(ContextPage):
         if self.get_parent().specific_class == PleromaPage:
             context['latest'] = vc.latestVideos
         return context
+
 
 LessonsPage.parent_page_types = [PleromaPage, LessonsPage]
