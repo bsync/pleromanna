@@ -1,5 +1,6 @@
 import vimeo
 import local
+from bs4 import BeautifulSoup
 
 
 class VimeoCollection(object):
@@ -35,12 +36,18 @@ class VimeoCollection(object):
     def latestVideos(self):
         lv = self.client.get('/me/videos', params={'sort':"date",
                                                    'direction':"desc",
-                                                   'sizes':"100x75",
                                                    'page':"1",
                                                    'per_page':"10"})
         lv = lv.json()
         lve = [x['embed']['html'] for x in lv['data']]
-        return lve
+        lvp = []
+        for eachLv in lve:
+            lvh = BeautifulSoup(eachLv, "lxml")
+            lvh.iframe['width']='640'
+            lvh.iframe['height']='360'
+            lvp.append(str(lvh))
+
+        return lvp
 
 
 vc = VimeoCollection()
