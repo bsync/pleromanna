@@ -1,68 +1,48 @@
-include Makefile.defs
+DYML=docker-compose.yml
 
-run: .penv .nginx migrated stop
-	$(call gunicorn,3)
+up: 
+	docker-compose -f $(DYML) up -d
 
-run_dev_server: .penv migrated 
-	$(call exenv,python manage.py runserver 0.0.0.0:8000)
+down: 
+	docker-compose down
 
-stop: 
-	kill -INT $$(cat gunicorn.pid) || true
+build:
+	docker-compose build
 
-pyshell:
-	$(call exenv,python manage.py shell)
+showmigs: up
+	docker-compose exec pleroma python manage.py showmigrations
 
-collected:
-	$(call collectstatic)
+pygrate: up
+	docker-compose exec pleroma python manage.py makemigrations pleromanna
+	docker-compose exec pleroma python manage.py migrate
 
-migrated:
-	echo "First make migrations..."
-	$(call exenv,python manage.py makemigrations pleromanna)
-	echo "then migrate..."
-	$(call exenv,python manage.py migrate)
+superuser: up
+	docker-compose exec pleroma python manage.py createsuperuser
 
-bash:
-	@echo "PS1='django> '" > /tmp/rc
-	bash --rcfile /tmp/rc -i
+pshell: up
+	docker-compose exec pleroma bash
 
-#Dev wrapped targets 
-devserve: 
-	$(call devmake,run_dev_server)
+pyshell: up
+	docker-compose exec pleroma python manage.py shell
 
-devcollected:
-	$(call devmake,collected)
+dbshell: up
+	docker-compose exec pleroma python manage.py dbshell
 
-devbash:
-	$(call devmake,bash)
+collected: up
+	docker-compose exec pleroma python manage.py collectstatic -i wagtail* -i common* -i admin* --no-input
 
-devpyshell:
-	$(call devmake,pyshell)
+attached: up
+	docker attach plerodock_pleroma_1
 
-devmigrated:
-	$(call devmake,migrated)
+dumpdb:
+	pg_dump -U dbsync -h dev.pleromabiblechurch.org -d pleromadb > dev.dump
 
-
-# Under the hood targets
-.nginx: 
-	$(call nginx_install)
-	$(call certbot_install)
-
-.penv: pleromanna/requirements.txt
-	virtualenv --python=python3 .penv
-	$(call exenv,pip install -r pleromanna/requirements.txt)
-	touch .penv
-
-syncdb:
-	$(call dumpdb)
-
-dbshell:
-	$(call exenv,python manage.py dbshell)
-
-deploy:
-	sudo (apt install -y postgres)
-	echo "TODO: configure a database called pleromadb"
-	sudo (apt install -y nginx && cp nginx.conf /etc/nginx/)
-	echo "TODO: install letsencrypt cryptbot and run it to create certs"
+syncdbs: up
+	@docker exec plerodock_postgres_1 dropdb -U postgres postgres || true
+	@sleep 3
+	@docker exec plerodock_postgres_1 createdb -U postgres -O postgres postgres
+	#TODO: User should be postgres instead of dbsync eventually
+	@sed -s 's/dbsync/postgres/g' dev.dump | docker exec -i plerodock_postgres_1 psql -U postgres postgres 
+	@docker-compose down 
 
 .ONESHELL:
-

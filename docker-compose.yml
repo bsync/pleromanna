@@ -1,0 +1,27 @@
+version: "3.1"
+
+services:
+
+   pleroma:
+      build:
+         context: .
+      image: plerodock
+      command: >
+         python manage.py runserver 0.0.0.0:8000
+      volumes:
+         - .:/code
+         - ~/pleroma_secrets.py:/code/secrets.py
+      ports:
+         - "8000:8000"
+      depends_on:
+         - postgres
+      stdin_open: true
+      tty: true     
+
+   postgres:
+      image: postgres
+      volumes:
+         - plerodata:/var/lib/postgresql/data
+
+volumes:
+   plerodata:

@@ -1,23 +1,17 @@
-import os
 from django.db import models
-from django.db.models import DateTimeField
 from django.utils import timezone
-from django.utils.html import format_html
 from wagtail.core.models import Page
 from wagtail.core.fields import StreamField, RichTextField
 from wagtail.admin.edit_handlers import StreamFieldPanel
 from wagtail.admin.edit_handlers import FieldPanel
 from wagtail.images.edit_handlers import ImageChooserPanel
-from wagtailmedia.models import AbstractMedia
-from wagtail.embeds.blocks import EmbedBlock
 from wagtail.snippets.models import register_snippet
 from wagtail.snippets.blocks import SnippetChooserBlock
 from wagtail.documents.blocks import DocumentChooserBlock
 from wagtail.images import blocks as image_blocks
-from wagtailmedia.blocks import AbstractMediaChooserBlock
 from wagtail.core import blocks as core_blocks
 from commonblocks import blocks as common_blocks
-from .vimeoresource import vc
+from wagtailmenus.models import MenuPage
 
 
 class SectionBlock(core_blocks.StructBlock):
@@ -106,8 +100,8 @@ class LinkBlock(SectionBlock):
         template = 'blocks/link_block.html'
 
 
-class ContextPage(Page):
-    pub_date = DateTimeField()
+class ContextPage(MenuPage):
+    pub_date = models.DateTimeField()
 
     @property
     def sections(self):
@@ -142,13 +136,77 @@ class ContextPage(Page):
 class EventPage(ContextPage):
     body = StreamField([('event', EventBlock())], blank=True)
     content_panels = ContextPage.content_panels + [StreamFieldPanel('body')]
+    template = 'pleromanna/events.html'
+
+    def modify_submenu_items(self, menu_items, **kwargs):
+        """
+        If rendering a 'main_menu', add some additional menu items to the end
+        of the list that link to various anchored sections on the same page.
+
+        We're only making use 'original_menu_tag' and 'current_site' in this
+        example, but `kwargs` should have all of the following keys:
+
+        * 'current_page'
+        * 'current_ancestor_ids'
+        * 'current_site'
+        * 'allow_repeating_parents'
+        * 'apply_active_classes'
+        * 'original_menu_tag'
+        * 'menu_instance'
+        * 'request'
+        * 'use_absolute_page_urls'
+        """
+        # Start by applying default modifications
+        menu_items = super(EventPage, self).modify_submenu_items(menu_items, **kwargs)
+
+        if kwargs['original_menu_tag'] == 'main_menu':
+            page_url = self.relative_url(kwargs['current_page'])
+            """
+            Additional menu items can be objects with the necessary attributes,
+            or simple dictionaries. `href` is used for the link URL, and `text`
+            is the text displayed for each link. Below, I've also used
+            `active_class` to add some additional CSS classes to these items,
+            so that I can target them with additional CSS
+            """
+            for evt in self.latestEvents():
+                if evt.value['stop_date'] > timezone.now():
+                    menu_items.append(( {
+                            'text': evt.value['section'],
+                            'href': page_url + "#{}".format(evt.id),
+                        }))
+
+        return menu_items
+
+    def has_submenu_items(self, **kwargs):
+        """
+        Because `modify_submenu_items` is being used to add additional menu
+        items, we need to indicate in menu templates that `EventPage` objects
+        do have submenu items in main menus, even if they don't have children
+        pages.
+
+        We're only making use 'original_menu_tag' in this example, but
+        `kwargs` should have all of the following keys:
+
+        * 'current_page'
+        * 'allow_repeating_parents'
+        * 'original_menu_tag'
+        * 'menu_instance'
+        * 'request'
+        """
+
+        if kwargs['original_menu_tag'] == 'main_menu':
+            return True
+        # Resort to default behaviour
+        return super(EventPage, self).has_submenu_items(**kwargs)
 
     @classmethod
-    def latestEvents(cls, count):
+    def latestEvents(cls, count=-1):
         ep = cls.objects.live().in_menu().get(title="Events")
         epbl = list(ep.body)
+        tnow = timezone.now()
         epbl.sort(key=lambda x: x.value['start_date'], reverse=True)
-        return epbl[:count]
+        epfbl = list(filter(lambda x: x.value['stop_date'] > tnow, epbl))
+        return epfbl[:count]
 
 
 class ImageryPage(ContextPage):
@@ -166,15 +224,14 @@ class DocsPage(ContextPage):
 
 
 class PleromaHomePage(ContextPage):
-    heading = models.CharField(max_length=250)
-    subheading = models.CharField(max_length=250, blank=True)
-    image = models.ForeignKey(
+    backdrop = models.ForeignKey(
         'wagtailimages.Image',
         null=True,
         blank=True,
         on_delete=models.SET_NULL,
         related_name='+')
-    backdrop = models.ForeignKey(
+    heading = models.CharField(max_length=250)
+    image = models.ForeignKey(
         'wagtailimages.Image',
         null=True,
         blank=True,
@@ -183,12 +240,12 @@ class PleromaHomePage(ContextPage):
     notice = RichTextField(blank=True)
     paragraph = RichTextField()
     content_panels = ContextPage.content_panels + [
-        FieldPanel('heading'),
-        FieldPanel('subheading'),
-        ImageChooserPanel('image'),
         ImageChooserPanel('backdrop'),
+        FieldPanel('heading'),
+        ImageChooserPanel('image'),
         FieldPanel('notice'),
         FieldPanel('paragraph', classname="full"), ]
+    template = 'pleromanna/home_page.html'
 
     @property
     def events(self):
@@ -202,6 +259,7 @@ class PleromaPage(ContextPage):
                         ('article', ArticleBlock()),
                         ('link',    LinkBlock()), ])
     content_panels = ContextPage.content_panels + [StreamFieldPanel('body')]
+    template = 'pleromanna/page.html'
 
 
 PleromaPage.parent_page_types = [PleromaHomePage, PleromaPage]
@@ -210,45 +268,8 @@ ImageryPage.parent_page_types = [ImageryPage, PleromaPage]
 DocsPage.parent_page_types = [DocsPage, PleromaPage]
 
 
-class SectionedVimeoBlock(SectionBlock):
-    album = core_blocks.ChoiceBlock(choices=vc.listAlbumChoices, required=True)
-
-    def clean(self, value):
-        result = super(SectionedVimeoBlock, self).clean(value)
-        if not result['section']:
-            result['section'] = vc.album_name_for(result['album'])
-        return result
-
-    class Meta:
-        icon = 'media'
-        template = 'blocks/sectioned_vimeo_block.html'
-
-        class SectionedVimeoValue(core_blocks.StructValue):
-            def album_name(self):
-                album = self.get('album')
-                # page = self.get('page')
-                return vc.album_name_for(album)
-
-            def embed_html(self):
-                album = self.get('album')
-                # page = self.get('page')
-                return vc.album_embed_html_for(album)
-        value_class = SectionedVimeoValue
-
-
 class LessonsPage(ContextPage):
-    body = StreamField(
-            [('vimeo_block', SectionedVimeoBlock()),
-             ('collection_block', CollectionChooserBlock()),
-             ('link_block', LinkBlock()),
-             ], blank=True)
-    content_panels = ContextPage.content_panels + [StreamFieldPanel('body')]
-
-    def get_context(self, request):
-        context = super(LessonsPage, self).get_context(request)
-        if self.get_parent().specific_class == PleromaPage:
-            context['latest'] = vc.latestVideos
-        return context
+    pass
 
 
 LessonsPage.parent_page_types = [PleromaPage, LessonsPage]

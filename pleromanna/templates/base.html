@@ -1,49 +1,49 @@
-{% load navigation_tags static wagtailuserbar wagtailcore_tags %}
+{% load static wagtailuserbar wagtailimages_tags %}
 
-{% block head %}
-    {% include "includes/head.html" %}
-{% endblock head %}
+<!DOCTYPE html>
+<html class="no-js">
+    <head>
+        <meta charset="utf-8" />
+        <title>
+            {% block title %}
+                {% if self.seo_title %}{{ self.seo_title }}
+                {% else %}{{ self.title }}
+                {% endif %}
+            {% endblock %}
+            {% block title_suffix %}
+                {% with self.get_site.site_name as site_name %}
+                    {% if site_name %}- {{ site_name }}{% endif %}
+                {% endwith %}
+            {% endblock %}
+        </title>
+        <meta name="description" content="" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+        {% block style %} 
+         <style>
+            {% image backdrop width-400 as tmp_photo %}
+            body {background-image: url('{{ tmp_photo.url }}');
+                  background-position: center;
+                  background-attachment: fixed;
+                  background-size: cover;
+                  font-size: 20px;
+                  margin-left: 5%; margin-right: 5%;
+                  background-color: #ccc; color: black; }
+         </style>
+        {% endblock %}
+    </head>
+    <body> 
 
-<body class="{% block body_class %}template-{{ self.get_verbose_name|slugify }}{% endblock %}">
-{% wagtailuserbar %}
+       {% block menu %} {% endblock %}
+       {% wagtailuserbar %} 
+       {% block content %}{% endblock %}
 
-{% block header %}
-   {% include "includes/nav_menu.html" %}
-{% endblock header %}
-
-{#% block breadcrumbs %#}
-   {# breadcrumbs is defined in base/templatetags/navigation_tags.py #}
-   {#% breadcrumbs %#}
-{#% endblock breadcrumbs %#}
-
-{% block head-extra %}
-{% endblock head-extra %}
-
-{% block messages %}
-    {% include "includes/messages.html" %}
-{% endblock messages %}
-<hr>
-<content role="main">
-    {% block content %}
-    {# Iterate over child pages adding a link to each one #}
-    {% for child_page in page_children %}
-      <div class="row">
-         <div class="col-sm-12" style="background-color: #ccc">
-            <a href="{{ child_page.url }}" class="btn btn-block">
-               {{ child_page.title }}
-            </a>
-         </div>
-      </div>
-    {% endfor %}
-    {% endblock content %}
-</content>
-    <hr>
-    <!-- Footer -->
-    <footer>
-        {% include "includes/footer.html" %}
-    </footer>
-    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
-</body>
+       <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+       <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+       <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+       <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+        {% block extra_js %}
+            {# Override this in templates to add extra javascript #}
+        {% endblock %}
+    </body>
 </html>
