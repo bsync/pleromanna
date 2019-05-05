@@ -1,5 +1,6 @@
-{% extends "pleromanna/pleroma_page.html" %}
+{% extends "pleromanna/page.html" %}
+{% load menu_tags %}
 
-{% block header %}
-   {% include "includes/nav_menu.html" with menu_root_page=menu_root %}
+{% block menu %}
+   {% flat_menu 'docs_menu' max_levels=2 template="menus/main_menu.html" %}
 {% endblock %}

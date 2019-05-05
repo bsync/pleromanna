@@ -1,17 +1,16 @@
 {% load wagtailimages_tags %}
-
-<div class="article container-fluid" >
-   <div class="row">
+<div class="row">
+   <div class="col-xs-2" >
       <div id="{{ bid }}" 
-           style="background-color: #ccc; padding-left: 10px;">
+           style="background-color: #ccc; padding: 10px;">
          <hr> {{ value.section }} <hr>
       </div>
-      <div class="col-xs-2" style="height:200px; overflow:hidden;">
-         {% image value.image original style="width:100%;" %}
-      </div>
-      <div class="col-xs-10" style="background-color: #ccc;">
-         <h2>{{value.subject}}</h2>
-         <p style="font-size: large;">{{value.paragraph}}</p>
-      </div>
+   </div>
+   <div class="col-xs-2" >
+      {% image value.image original style="width:100%;" %}
+   </div>
+   <div class="col-xs-8" style="background-color: #ccc; padding: 10px;">
+      <h2>{{value.subject}}</h2>
+      <p style="font-size: large;">{{value.paragraph}}</p>
    </div>
 </div>

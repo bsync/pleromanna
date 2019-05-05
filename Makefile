@@ -25,6 +25,9 @@ pshell: up
 pyshell: up
 	docker-compose exec pleroma python manage.py shell
 
+ipyshell: up
+	docker-compose exec pleroma ipython
+
 dbshell: up
 	docker-compose exec pleroma python manage.py dbshell
 
@@ -32,17 +35,17 @@ collected: up
 	docker-compose exec pleroma python manage.py collectstatic -i wagtail* -i common* -i admin* --no-input
 
 attached: up
-	docker attach plerodock_pleroma_1
+	docker attach pleroma
 
 dumpdb:
 	pg_dump -U dbsync -h dev.pleromabiblechurch.org -d pleromadb > dev.dump
 
 syncdbs: up
-	@docker exec plerodock_postgres_1 dropdb -U postgres postgres || true
+	@docker exec pleroma_postgres dropdb -U postgres postgres || true
 	@sleep 3
-	@docker exec plerodock_postgres_1 createdb -U postgres -O postgres postgres
+	@docker exec pleroma_postgres createdb -U postgres -O postgres postgres
 	#TODO: User should be postgres instead of dbsync eventually
-	@sed -s 's/dbsync/postgres/g' dev.dump | docker exec -i plerodock_postgres_1 psql -U postgres postgres 
+	@sed -s 's/dbsync/postgres/g' dev.dump | docker exec -i pleroma_postgres psql -U postgres postgres 
 	@docker-compose down 
 
 .ONESHELL:

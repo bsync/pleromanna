@@ -6,6 +6,7 @@ from urllib.parse import urlsplit
 from django.views import View
 from django.conf.urls import url
 from django.shortcuts import render
+from django.http import HttpResponse
 import secrets
 
 # Set the Referer in the header to allow download via youtube_dl
@@ -13,84 +14,103 @@ import secrets
 youtube_dl.utils.std_headers['Referer'] = "https://dev.pleromabiblechurch.org"
 
 
-class Audio(View):
-    def __init__(self, audioInfo):
+class VimeoObject(object):
+    client = vimeo.VimeoClient(
+                    token=secrets.VIMEO_TOKEN,
+                    key=secrets.VIMEO_CLIENT_ID,
+                    secret=secrets.VIMEO_SECRET)
+
+    def __init__(self, vimeoInfo, **kwargs):
+        self.title = vimeoInfo['name']
+        self.url = vimeoInfo['uri']
+        self.vim_id = self.url.rpartition('/')[2]
+        self._parseInfo(vimeoInfo, **kwargs)
+
+    @classmethod
+    def fetch(cls, aurl, some_params=None):
+        return cls.client.get(aurl, params=some_params).json()
+
+
+class Audio(VimeoObject):
+    def _parseInfo(self, audioInfo, **kwargs):
         ydl_opts = {'format': 'bestaudio[ext=mp3]', }
         with youtube_dl.YoutubeDL(self.ydl_opts) as ydl:
             x = ydl.download([audioInfo])
             # TODO: save the converted file on s3?
 
 
-class Video(View):
-    def __init__(self, vidInfo):
+class Video(VimeoObject):
+    _cache = {}
+
+    def _parseInfo(self, vidInfo, album=None, **kwargs):
         self.vidInfo = vidInfo
+        self.album = album
+        self.title = vidInfo['name']
+        embedHtml = vidInfo['embed']['html']
+        lvh = BeautifulSoup(embedHtml, "lxml")
+        del lvh.iframe['width']
+        del lvh.iframe['height']
+        self.embedHtml = str(lvh.iframe)
+        self._cache[self.vim_id] = self
 
     @property
-    def url(self):
-        src = urlsplit(self.vidInfo['src'])._replace(query=None).geturl()
-        return src
+    def album_name(self):
+        if getattr(self, 'album', False):
+            return self.album.name
+        return None
 
-    def embedHtml(self):
-        return self.vidInfo
+    @staticmethod
+    def latestVideos(count=10):
+        lvs = []
+        for alb in Album.albums():
+            for vid in alb.videos:
+                lvs.append(vid)
+                if len(lvs) == count:
+                    return lvs
+        return lvs
 
 
-class Album(View):
-    def __init__(self, albInfo):
-        import pdb; pdb.set_trace()
+class Album(VimeoObject):
+    def _parseInfo(self, albInfo, **kwargs):
         self.albInfo = albInfo
 
-
-class Collection(View):
-    client = vimeo.VimeoClient(
-                    token=secrets.VIMEO_TOKEN,
-                    key=secrets.VIMEO_CLIENT_ID,
-                    secret=secrets.VIMEO_SECRET)
-
-    def get(self, request, *args, **kwargs):
-        return render(request,
-                      'pleromanna/lessons_page.html',
-                      {"latest": self.latestVideos,
-                       "albums": self.albums})
-
-    def fetch(self, aurl, some_params=None):
-        return self.client.get(aurl, params=some_params).json()
-
-    @property
-    def latestVideos(self):
-        lv = self.fetch('/me/videos', some_params={'sort': "date",
-                                              'direction': "desc",
-                                              'page': "1",
-                                              'per_page': "10"})
-        lve = [x['embed']['html'] for x in lv['data']]
-        lvp = []
-        for eachLv in lve:
-            lvh = BeautifulSoup(eachLv, "lxml")
-            lvh.iframe['width'] = '640'
-            lvh.iframe['height'] = '360'
-            lvp.append(Video(lvh.iframe))
-        return lvp
-
-    @property
-    def albums(self):
-        valbs = self.fetch('/me/albums', some_params={'fields': "uri,name,"})
+    @staticmethod
+    def albums():
+        valbs = Album.fetch('/me/albums',
+                            some_params={'fields': "uri,name",
+                                         'sort': "date",
+                                         'direction': "desc"})
         paging = valbs['paging']
-        albs = [Album(valbs['data'])]
+        albs = [Album(x) for x in valbs['data']]
         while(paging['next']):
-            valbs = self.fetch(paging['next'])
+            valbs = Album.fetch(paging['next'])
+            albs.append([Album(x) for x in valbs['data']])
             paging = valbs['paging']
-            albs.append(Album(valbs['data']))
         return albs
 
-    def album_embed_html_for(self, album_uri):
-        alb_info = self.client.get(album_uri, params={'fields': 'embed.html'})
-        alb_info = alb_info.json()
-        return alb_info['embed']['html']
+    @property
+    def videos(self):
+        lv = self.fetch('/me/albums/{}/videos'.format(self.vim_id),
+                        some_params={'fields': "uri,name,embed",
+                                     'sort': "date",
+                                     'direction': "desc"})
+        vids = []
+        for x in lv['data']:
+            vid = Video(x, album=self)
+            vids.append(vid)
 
-    def album_name_for(self, album_uri):
-        alb_info = self.client.get(album_uri, params={'fields': 'name'})
-        alb_info = alb_info.json()
-        return alb_info['name']
+        return vids
 
-urlpatterns = [
-    url(r'', Collection.as_view(), name="vimeo"),
-    url(r'(?P<album>\w+)', Collection.as_view(), name="vimeo_album")]
+    @property
+    def name(self):
+        return self.albInfo['name']
+
+
+class VimeoView(View):
+
+    def get(self, request, video_id):
+        vid = Video._cache[video_id]
+        return render(request, "pleromanna/vimeo_vid.html", {'vid': vid})
+
+
+urlpatterns = [url(r'^(\d+)/$', VimeoView.as_view(), name="vimeo")]

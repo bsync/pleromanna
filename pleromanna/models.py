@@ -12,6 +12,7 @@ from wagtail.images import blocks as image_blocks
 from wagtail.core import blocks as core_blocks
 from commonblocks import blocks as common_blocks
 from wagtailmenus.models import MenuPage
+from .vimeoresource import Video
 
 
 class SectionBlock(core_blocks.StructBlock):
@@ -117,20 +118,34 @@ class ContextPage(MenuPage):
 
     def get_context(self, request):
         context = super(ContextPage, self).get_context(request)
-        context['event_blocks'] = EventPage.latestEvents(5)
+        context['evtPage'], context['evtBlocks'] = EventPage.latestEvents(3)
         recent_pages = ContextPage.objects.live()
-        context['recent_pages'] = recent_pages.order_by('-pub_date')[:5]
-        mroot = self.get_ancestors().type(self.__class__).first()
-        context['menu_root'] = self if mroot is None else mroot
-        context['page_children'] = Page.objects.child_of(self)
+        context['recent_pages'] = recent_pages.order_by('-pub_date')[:3]
+        context['menu_children'] = Page.objects.child_of(self)
         hp = Page.objects.type(PleromaHomePage).first().specific
         context['backdrop'] = hp.backdrop
+        context['lessons'] = Video.latestVideos(3)
         return context
 
     def save(self, *args, **kwargs):
         """ On save, update timestamps """
         self.pub_date = timezone.now()
         return super(ContextPage, self).save(*args, **kwargs)
+
+    def modify_submenu_items(self, menu_items, **kwargs):
+        msi = super(ContextPage, self).modify_submenu_items
+        menu_items = msi(menu_items, **kwargs)
+        page_url = self.relative_url(kwargs['current_page'])
+        for idx, sect in enumerate(self.sections):
+            menu_items.insert(idx, ({
+                    'text': sect.value['section'],
+                    'href': page_url + "#{}".format(sect.id),
+                }))
+        return menu_items
+
+    def has_submenu_items(self, **kwargs):
+        return bool(len(self.sections)) \
+            or super(ContextPage, self).has_submenu_items(**kwargs)
 
 
 class EventPage(ContextPage):
@@ -139,53 +154,53 @@ class EventPage(ContextPage):
     template = 'pleromanna/events.html'
 
     def modify_submenu_items(self, menu_items, **kwargs):
-        """
-        If rendering a 'main_menu', add some additional menu items to the end
-        of the list that link to various anchored sections on the same page.
+        """ `kwargs` has the following keys:
 
-        We're only making use 'original_menu_tag' and 'current_site' in this
-        example, but `kwargs` should have all of the following keys:
-
-        * 'current_page'
-        * 'current_ancestor_ids'
-        * 'current_site'
-        * 'allow_repeating_parents'
-        * 'apply_active_classes'
-        * 'original_menu_tag'
-        * 'menu_instance'
-        * 'request'
+        * 'current_page' * 'current_ancestor_ids' * 'current_site'
+        * 'allow_repeating_parents' * 'apply_active_classes'
+        * 'original_menu_tag' * 'menu_instance' * 'request'
         * 'use_absolute_page_urls'
         """
-        # Start by applying default modifications
-        menu_items = super(EventPage, self).modify_submenu_items(menu_items, **kwargs)
+        # Start by applying default modifications, but skip
+        # the immediate base class because it adds the
+        # sections regardless of event stop_date
+        msi = super(ContextPage, self).modify_submenu_items
+        menu_items = msi(menu_items, **kwargs)
 
         if kwargs['original_menu_tag'] == 'main_menu':
-            page_url = self.relative_url(kwargs['current_page'])
-            """
-            Additional menu items can be objects with the necessary attributes,
-            or simple dictionaries. `href` is used for the link URL, and `text`
-            is the text displayed for each link. Below, I've also used
-            `active_class` to add some additional CSS classes to these items,
-            so that I can target them with additional CSS
-            """
-            for evt in self.latestEvents():
-                if evt.value['stop_date'] > timezone.now():
-                    menu_items.append(( {
-                            'text': evt.value['section'],
-                            'href': page_url + "#{}".format(evt.id),
-                        }))
+            epage, evts = self.latestEvents()
+            tnow = timezone.now()
+            evts = list(filter(lambda x: x.value['stop_date'] > tnow, evts))
+        elif kwargs['original_menu_tag'] == 'flat_menu':
+            # flat_menus only recognize event blocks as menu items.
+            # page children are not displayed since they are siblings
+            menu_items = []
+            evts = list(self.body)
+
+        page_url = self.relative_url(kwargs['current_page'])
+        """
+        Additional menu items can be objects with the necessary attributes,
+        or simple dictionaries. `href` is used for the link URL, and `text`
+        is the text displayed for each link. Below, I've also used
+        `active_class` to add some additional CSS classes to these items,
+        so that I can target them with additional CSS
+        """
+        for idx, evt in enumerate(evts):
+            menu_items.insert(idx, ({
+                    'text': evt.value['section'],
+                    'href': page_url + "#{}".format(evt.id),
+                }))
 
         return menu_items
 
     def has_submenu_items(self, **kwargs):
-        """
-        Because `modify_submenu_items` is being used to add additional menu
-        items, we need to indicate in menu templates that `EventPage` objects
-        do have submenu items in main menus, even if they don't have children
-        pages.
+        """ Decide if there are submenu items...
 
-        We're only making use 'original_menu_tag' in this example, but
-        `kwargs` should have all of the following keys:
+            We need to indicate in menu templates that `EventPage` objects may
+            have submenu items in main menus, even if they don't have children
+            pages.
+
+        `kwargs` has the following keys:
 
         * 'current_page'
         * 'allow_repeating_parents'
@@ -193,20 +208,17 @@ class EventPage(ContextPage):
         * 'menu_instance'
         * 'request'
         """
-
-        if kwargs['original_menu_tag'] == 'main_menu':
-            return True
-        # Resort to default behaviour
-        return super(EventPage, self).has_submenu_items(**kwargs)
+        return bool(len(self.body)) \
+            or super(EventPage, self).has_submenu_items(**kwargs)
 
     @classmethod
-    def latestEvents(cls, count=-1):
-        ep = cls.objects.live().in_menu().get(title="Events")
+    def latestEvents(cls, count=None):
+        ep = cls.objects.live().in_menu().first()
         epbl = list(ep.body)
         tnow = timezone.now()
         epbl.sort(key=lambda x: x.value['start_date'], reverse=True)
         epfbl = list(filter(lambda x: x.value['stop_date'] > tnow, epbl))
-        return epfbl[:count]
+        return ep.url, epfbl[:count]
 
 
 class ImageryPage(ContextPage):
@@ -245,11 +257,11 @@ class PleromaHomePage(ContextPage):
         ImageChooserPanel('image'),
         FieldPanel('notice'),
         FieldPanel('paragraph', classname="full"), ]
-    template = 'pleromanna/home_page.html'
+    template = 'pleromanna/home.html'
 
     @property
     def events(self):
-        return EventPage.objects.get(title="Events")
+        return EventPage.objects.latest('pub_date')
 
 
 class PleromaPage(ContextPage):
@@ -269,7 +281,21 @@ DocsPage.parent_page_types = [DocsPage, PleromaPage]
 
 
 class LessonsPage(ContextPage):
-    pass
+    template = 'pleromanna/lessons.html'
+
+    def modify_submenu_items(self, menu_items, **kwargs):
+        msi = super(LessonsPage, self).modify_submenu_items
+        menu_items = msi(menu_items, **kwargs)
+        page_url = self.relative_url(kwargs['current_page'])
+        if kwargs['original_menu_tag'] == 'flat_menu':
+            for idx, lesson in enumerate(Video.latestVideos(10)):
+                menu_items.insert(idx, ({
+                        'text': lesson.title,
+                        'href': page_url + "#{}".format(lesson.vim_id), }))
+        return menu_items
+
+    def has_submenu_items(self, **kwargs):
+        return True
 
 
 LessonsPage.parent_page_types = [PleromaPage, LessonsPage]

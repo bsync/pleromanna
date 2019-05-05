@@ -9,3 +9,5 @@ unipath
 boto3
 youtube_dl
 gunicorn
+ipython
+lxml
