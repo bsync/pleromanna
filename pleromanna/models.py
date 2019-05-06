@@ -124,7 +124,7 @@ class ContextPage(MenuPage):
         context['menu_children'] = Page.objects.child_of(self)
         hp = Page.objects.type(PleromaHomePage).first().specific
         context['backdrop'] = hp.backdrop
-        context['lessons'] = Video.latestVideos(3)
+        context['lessons'] = Video.latestVideos(5)
         return context
 
     def save(self, *args, **kwargs):
@@ -283,19 +283,9 @@ DocsPage.parent_page_types = [DocsPage, PleromaPage]
 class LessonsPage(ContextPage):
     template = 'pleromanna/lessons.html'
 
-    def modify_submenu_items(self, menu_items, **kwargs):
-        msi = super(LessonsPage, self).modify_submenu_items
-        menu_items = msi(menu_items, **kwargs)
-        page_url = self.relative_url(kwargs['current_page'])
-        if kwargs['original_menu_tag'] == 'flat_menu':
-            for idx, lesson in enumerate(Video.latestVideos(10)):
-                menu_items.insert(idx, ({
-                        'text': lesson.title,
-                        'href': page_url + "#{}".format(lesson.vim_id), }))
-        return menu_items
-
-    def has_submenu_items(self, **kwargs):
-        return True
-
+    def get_context(self, request):
+        context = super(ContextPage, self).get_context(request)
+        context['lessons'] = Video.latestVideos(10)
+        return context
 
 LessonsPage.parent_page_types = [PleromaPage, LessonsPage]

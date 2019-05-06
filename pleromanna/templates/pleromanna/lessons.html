@@ -1,6 +1,41 @@
 {% extends "pleromanna/page.html" %}
 {% load menu_tags %}
 
+{% block extrastyle %} 
+   .container {
+      display: grid;
+      grid-auto-columns: auto;
+      background-color: gray; color: white;
+      margin-top: 40px; padding: 1em;
+   }
+   .lessons { 
+      background-color: darkblue; 
+      border-radius: 15px;
+      width: 100%;
+      margin: 5px;
+      padding: 20px;
+   }
+   .lessons a { color: yellow; }
+   .lessons h2 { background-color: blue; border-radius: 20px; padding: 10px; }
+{% endblock %}
 {% block menu %}
    {% flat_menu 'lesson_menu' max_levels=2 template="menus/main_menu.html" %}
 {% endblock %}
+
+{% block content %} 
+   {{ block.super }}
+   <div class="container">
+      <div class="lessons">
+         <h2><b>Latest Lessons:</b></h2>
+         <ul style="list-style: none;">
+         {% for lesson in lessons %}
+            <li> 
+               <a href="{{lesson.url}}">
+                  {{lesson.album_name}}:{{lesson.title}}
+               </a> 
+            </li>
+         {% endfor %}
+         </ul>
+      </div>
+   </div>
+{%endblock%}
