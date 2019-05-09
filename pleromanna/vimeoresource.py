@@ -7,7 +7,7 @@ from django.views import View
 from django.conf.urls import url
 from django.shortcuts import render
 from django.http import HttpResponse
-import secrets
+from . import secrets
 
 # Set the Referer in the header to allow download via youtube_dl
 # This is necessary for mp4 audio only conversion of video files

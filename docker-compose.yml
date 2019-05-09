@@ -1,4 +1,4 @@
-version: "3.1"
+version: "3.7"
 
 services:
 
@@ -11,7 +11,6 @@ services:
          python manage.py runserver 0.0.0.0:8000
       volumes:
          - .:/code
-         - ~/pleroma_secrets.py:/code/secrets.py
       ports:
          - "8000:8000"
       depends_on:
@@ -19,11 +18,19 @@ services:
       stdin_open: true
       tty: true     
 
+      secrets:
+         - source: pleroma_secrets
+           target: /code/pleromanna/secrets.py
+
    postgres:
       image: postgres
       container_name: pleroma_postgres
       volumes:
          - plerodata:/var/lib/postgresql/data
+
+secrets:
+   pleroma_secrets:
+      file: ~/pleroma_secrets.py
 
 volumes:
    plerodata:
