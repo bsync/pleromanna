@@ -11,13 +11,14 @@ services:
          python manage.py runserver 0.0.0.0:8000
       volumes:
          - .:/code
+         - pleromedia:/code/media
+
       ports:
          - "8000:8000"
       depends_on:
          - postgres
       stdin_open: true
       tty: true     
-
       secrets:
          - source: pleroma_secrets
            target: /code/pleromanna/secrets.py
@@ -33,5 +34,6 @@ secrets:
       file: ~/pleroma_secrets.py
 
 volumes:
+   pleromedia:
    plerodata:
       external: true

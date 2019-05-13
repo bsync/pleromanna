@@ -1,4 +1,4 @@
-DYML=docker-compose.yml
+DYML=docker-compose.prod.yml
 
 up: 
 	docker-compose -f $(DYML) up -d
