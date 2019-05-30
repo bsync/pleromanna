@@ -2,12 +2,7 @@
 {% load menu_tags %}
 
 {% block extrastyle %} 
-   .container {
-      display: grid;
-      grid-auto-columns: auto;
-      background-color: gray; color: white;
-      margin-top: 40px; padding: 1em;
-   }
+   {{ block.super }}
    .lessons { 
       background-color: darkblue; 
       border-radius: 15px;
@@ -23,19 +18,25 @@
 {% endblock %}
 
 {% block content %} 
-   {{ block.super }}
-   <div class="container">
-      <div class="lessons">
-         <h2><b>Latest Lessons:</b></h2>
-         <ul style="list-style: none;">
-         {% for lesson in lessons %}
-            <li> 
-               <a href="{{lesson.url}}">
-                  {{lesson.album_name}}:{{lesson.title}}
-               </a> 
-            </li>
-         {% endfor %}
-         </ul>
-      </div>
-   </div>
+     {% if page.body %}
+         <div class="container" >
+            {{ block.super }}
+         </div>
+     {% else %}
+         <div class="container">
+            <div class="lessons">
+               <h2><b>Latest Lessons:</b></h2>
+               <ul style="list-style: none;">
+               {% for lesson in lessons %}
+                  <li> 
+                     <a href="{{lesson.url}}">
+                        {{lesson.album_name}}:{{lesson.title}} (mp4 video)</a> 
+                     as
+                     <a href="{{lesson.audio.url}}"> (mp3 audio only) </a> 
+                  </li>
+               {% endfor %}
+               </ul>
+            </div>
+         </div>
+   {% endif %}
 {%endblock%}

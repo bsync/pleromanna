@@ -13,8 +13,8 @@ from . import secrets
 # This is necessary for mp4 audio only conversion of video files
 youtube_dl.utils.std_headers['Referer'] = "https://dev.pleromabiblechurch.org"
 
-
 class VimeoObject(object):
+    cache = {}
     client = vimeo.VimeoClient(
                     token=secrets.VIMEO_TOKEN,
                     key=secrets.VIMEO_CLIENT_ID,
@@ -25,6 +25,7 @@ class VimeoObject(object):
         self.url = vimeoInfo['uri']
         self.vim_id = self.url.rpartition('/')[2]
         self._parseInfo(vimeoInfo, **kwargs)
+        VimeoObject.cache[self.vim_id] = self
 
     @classmethod
     def fetch(cls, aurl, some_params=None):
@@ -33,14 +34,17 @@ class VimeoObject(object):
 
 class Audio(VimeoObject):
     def _parseInfo(self, audioInfo, **kwargs):
-        ydl_opts = {'format': 'bestaudio[ext=mp3]', }
-        with youtube_dl.YoutubeDL(self.ydl_opts) as ydl:
-            x = ydl.download([audioInfo])
+        ydl_opts = { 'format': 'bestaudio/best',
+                     'postprocessors': [{
+                        'key': 'FFmpegExtractAudio',
+                        'preferredcodec': 'mp3',
+                        'preferredquality': '192', }],
+                     'progress_hooks': [lambda : print("done")], }
+        with youtube_dl.YoutubeDL(ydl_opts) as ydl:
+            x = ydl.download(['https://vimeo' + audioInfo['uri']])
             # TODO: save the converted file on s3?
 
-
 class Video(VimeoObject):
-    _cache = {}
 
     def _parseInfo(self, vidInfo, album=None, **kwargs):
         self.vidInfo = vidInfo
@@ -51,7 +55,6 @@ class Video(VimeoObject):
         del lvh.iframe['width']
         del lvh.iframe['height']
         self.embedHtml = str(lvh.iframe)
-        self._cache[self.vim_id] = self
 
     @property
     def album_name(self):
@@ -60,7 +63,7 @@ class Video(VimeoObject):
         return None
 
     @staticmethod
-    def latestVideos(count=10):
+    def latest(count=10):
         lvs = []
         for alb in Album.albums():
             for vid in alb.videos:
@@ -71,13 +74,15 @@ class Video(VimeoObject):
 
 
 class Album(VimeoObject):
+        
     def _parseInfo(self, albInfo, **kwargs):
         self.albInfo = albInfo
+        self.embed_html = albInfo['embed']['html']
 
     @staticmethod
     def albums():
         valbs = Album.fetch('/me/albums',
-                            some_params={'fields': "uri,name",
+                            some_params={'fields': "uri,name,embed",
                                          'sort': "date",
                                          'direction': "desc"})
         paging = valbs['paging']
@@ -109,8 +114,7 @@ class Album(VimeoObject):
 class VimeoView(View):
 
     def get(self, request, video_id):
-        vid = Video._cache[video_id]
+        vid = VimeoObject.cache[video_id]
         return render(request, "pleromanna/vimeo_vid.html", {'vid': vid})
-
 
 urlpatterns = [url(r'^(\d+)/$', VimeoView.as_view(), name="vimeo")]

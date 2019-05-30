@@ -1,7 +1,13 @@
-DYML=docker-compose.prod.yml
+DYML=docker-compose.yml
 
 up: 
 	docker-compose -f $(DYML) up -d
+
+int_up: 
+	$(MAKE) DYML=docker-compose.int.yml
+
+prod_up: 
+	$(MAKE) DYML=docker-compose.prod.yml
 
 down: 
 	docker-compose down

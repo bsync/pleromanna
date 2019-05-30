@@ -161,3 +161,6 @@ WAGTAIL_SITE_NAME = "pleromanna"
 # Base URL to use when referring to full URLs within the Wagtail admin backend -
 # e.g. in notification emails. Don't include '/admin' or a trailing slash
 BASE_URL = 'http://pleromabiblechurch.org'
+
+#Make sure passwords are NOT retained beyond browser close events.
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True

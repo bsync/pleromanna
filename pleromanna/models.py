@@ -10,9 +10,11 @@ from wagtail.snippets.blocks import SnippetChooserBlock
 from wagtail.documents.blocks import DocumentChooserBlock
 from wagtail.images import blocks as image_blocks
 from wagtail.core import blocks as core_blocks
-from commonblocks import blocks as common_blocks
+from wagtail.embeds.blocks import EmbedBlock
 from wagtailmenus.models import MenuPage
-from .vimeoresource import Video
+from commonblocks import blocks as common_blocks
+from .vimeoresource import Video, Album, VimeoObject
+from collections import namedtuple
 
 
 class SectionBlock(core_blocks.StructBlock):
@@ -100,6 +102,19 @@ class LinkBlock(SectionBlock):
         icon = 'link'
         template = 'blocks/link_block.html'
 
+class LessonStructValue(core_blocks.StructValue):
+    def album(self):
+        album_choice_id = self.get('album_choice')
+        return VimeoObject.cache[album_choice_id]
+
+class LessonBlock(SectionBlock):
+    album_choice = core_blocks.ChoiceBlock(
+        choices=lambda : [ (alb.vim_id, alb.name) for alb in Album.albums() ])
+
+    class Meta:
+        icon = 'snippet'
+        template = 'blocks/lesson_block.html'
+        value_class = LessonStructValue
 
 class ContextPage(MenuPage):
     pub_date = models.DateTimeField()
@@ -118,13 +133,14 @@ class ContextPage(MenuPage):
 
     def get_context(self, request):
         context = super(ContextPage, self).get_context(request)
-        context['evtPage'], context['evtBlocks'] = EventPage.latestEvents(3)
+        context['evtPage'], context['evtBlocks'] = EventPage.latest(3)
+        context['imgBlocks'] = ImageryPage.latest(10)
         recent_pages = ContextPage.objects.live()
         context['recent_pages'] = recent_pages.order_by('-pub_date')[:3]
         context['menu_children'] = Page.objects.child_of(self)
         hp = Page.objects.type(PleromaHomePage).first().specific
         context['backdrop'] = hp.backdrop
-        context['lessons'] = Video.latestVideos(5)
+        context['lessons'] = Video.latest(5)
         return context
 
     def save(self, *args, **kwargs):
@@ -153,6 +169,10 @@ class EventPage(ContextPage):
     content_panels = ContextPage.content_panels + [StreamFieldPanel('body')]
     template = 'pleromanna/events.html'
 
+    def get_context(self, request):
+        context = super(EventPage, self).get_context(request)
+        return context
+
     def modify_submenu_items(self, menu_items, **kwargs):
         """ `kwargs` has the following keys:
 
@@ -168,7 +188,7 @@ class EventPage(ContextPage):
         menu_items = msi(menu_items, **kwargs)
 
         if kwargs['original_menu_tag'] == 'main_menu':
-            epage, evts = self.latestEvents()
+            epage, evts = self.latest()
             tnow = timezone.now()
             evts = list(filter(lambda x: x.value['stop_date'] > tnow, evts))
         elif kwargs['original_menu_tag'] == 'flat_menu':
@@ -212,7 +232,7 @@ class EventPage(ContextPage):
             or super(EventPage, self).has_submenu_items(**kwargs)
 
     @classmethod
-    def latestEvents(cls, count=None):
+    def latest(cls, count=None):
         ep = cls.objects.live().in_menu().first()
         epbl = list(ep.body)
         tnow = timezone.now()
@@ -228,6 +248,16 @@ class ImageryPage(ContextPage):
         blank=True)
     content_panels = ContextPage.content_panels + [StreamFieldPanel('body')]
 
+    @classmethod
+    def latest(cls, count=None):
+        LatestImage=namedtuple("LatestImage", "url section")
+        ivs = []
+        for ip in cls.objects.live().order_by('-pub_date'):
+            for img in list(ip.body):
+                ivs.append(LatestImage(ip.url, img.value['section']))
+                if len(ivs) == count:
+                    return ivs
+        return ivs
 
 class DocsPage(ContextPage):
     body = StreamField([('doc_chooser', SectionedDocChooserBlock())],
@@ -281,11 +311,24 @@ DocsPage.parent_page_types = [DocsPage, PleromaPage]
 
 
 class LessonsPage(ContextPage):
+    body = StreamField([('albums', LessonBlock()),])
+    content_panels = ContextPage.content_panels + [StreamFieldPanel('body')]
     template = 'pleromanna/lessons.html'
 
     def get_context(self, request):
         context = super(ContextPage, self).get_context(request)
-        context['lessons'] = Video.latestVideos(10)
+        context['lessons'] = Video.latest(10)
         return context
+
+    def clean(self):
+        """ Ensure all LessonBlocks include a section title even if it
+            has to come from the album title. """
+        super(LessonsPage, self).clean()
+        for alblock in self.body:
+            if not alblock.value['section']:
+                albid = alblock.value['album_choice']
+                atitle = VimeoObject.cache[albid].title
+                alblock.value['section'] = atitle
+
 
 LessonsPage.parent_page_types = [PleromaPage, LessonsPage]

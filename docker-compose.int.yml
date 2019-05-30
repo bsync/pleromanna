@@ -6,10 +6,7 @@ services:
       image: plerodock
       container_name: pleroma
       command: >
-         sh -c "python manage.py makemigrations pleromanna &&
-                python manage.py migrate &&
-                gunicorn pleromanna.wsgi:application \
-                 --bind 0.0.0.0:8000 --workers 3"
+         python manage.py runserver 0.0.0.0:8000
       expose:
          - 8000
       volumes:
