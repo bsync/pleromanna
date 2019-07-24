@@ -108,8 +108,10 @@ class LessonStructValue(core_blocks.StructValue):
         return VimeoObject.cache[album_choice_id]
 
 class LessonBlock(SectionBlock):
-    album_choice = core_blocks.ChoiceBlock(
-        choices=lambda : [ (alb.vim_id, alb.name) for alb in Album.albums() ])
+    def alb_choices():
+        return [ (alb.vim_id, alb.name) for alb in Album.albums() ]
+
+    album_choice = core_blocks.ChoiceBlock(choices=alb_choices)
 
     class Meta:
         icon = 'snippet'
@@ -140,7 +142,7 @@ class ContextPage(MenuPage):
         context['menu_children'] = Page.objects.child_of(self)
         hp = Page.objects.type(PleromaHomePage).first().specific
         context['backdrop'] = hp.backdrop
-        context['lessons'] = Video.latest(5)
+        context['lessons'] = Video.latest(7)
         return context
 
     def save(self, *args, **kwargs):
@@ -279,12 +281,16 @@ class PleromaHomePage(ContextPage):
         blank=True,
         on_delete=models.SET_NULL,
         related_name='+')
+    verse = RichTextField(
+            default="For of His fullness we have all receieved, "
+                   +"and grace upon grace. -John 1:16")
     notice = RichTextField(blank=True)
     paragraph = RichTextField()
     content_panels = ContextPage.content_panels + [
         ImageChooserPanel('backdrop'),
         FieldPanel('heading'),
         ImageChooserPanel('image'),
+        FieldPanel('verse'),
         FieldPanel('notice'),
         FieldPanel('paragraph', classname="full"), ]
     template = 'pleromanna/home.html'
@@ -327,8 +333,7 @@ class LessonsPage(ContextPage):
         for alblock in self.body:
             if not alblock.value['section']:
                 albid = alblock.value['album_choice']
-                atitle = VimeoObject.cache[albid].title
-                alblock.value['section'] = atitle
+                alblock.value['section'] = VimeoObject.cache[albid].name
 
 
 LessonsPage.parent_page_types = [PleromaPage, LessonsPage]

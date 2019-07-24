@@ -20,20 +20,51 @@ class VimeoObject(object):
                     key=secrets.VIMEO_CLIENT_ID,
                     secret=secrets.VIMEO_SECRET)
 
-    def __init__(self, vimeoInfo, **kwargs):
-        self.title = vimeoInfo['name']
-        self.url = vimeoInfo['uri']
-        self.vim_id = self.url.rpartition('/')[2]
-        self._parseInfo(vimeoInfo, **kwargs)
-        VimeoObject.cache[self.vim_id] = self
-
     @classmethod
     def fetch(cls, aurl, some_params=None):
         return cls.client.get(aurl, params=some_params).json()
 
+    def __init__(self, vimeoInfo):
+        self.vimeoInfo = vimeoInfo
+        VimeoObject.cache[self.vim_id] = self
+
+    @property
+    def vim_id(self):
+        return self.url.rpartition('/')[2]
+
+    @property
+    def name(self):
+        return self.vimeoInfo['name']
+
+    @property
+    def url(self):
+        return '/vimeo' + self.vimeoInfo['uri']
+
+    @property
+    def embed_html(self):
+        ehtml = self.vimeoInfo['embed']['html']
+        lvh = BeautifulSoup(ehtml, "lxml")
+        del lvh.iframe['style']
+        lvh.iframe['width']="100%"
+        lvh.iframe['height']="500px"
+        return str(lvh.iframe)
+
 
 class Audio(VimeoObject):
-    def _parseInfo(self, audioInfo, **kwargs):
+
+    @property
+    def vim_id(self):
+        return super(Audio, self).vim_id + "_audio"
+
+    @property
+    def url(self):
+        return '/vimeo' + self.vimeoInfo['uri'].replace('videos','audio')
+
+    @property
+    def vimeo_url(self):
+        return 'https://vimeo.com/' + super(Audio, self).vim_id
+
+    def serve(self):
         ydl_opts = { 'format': 'bestaudio/best',
                      'postprocessors': [{
                         'key': 'FFmpegExtractAudio',
@@ -41,44 +72,47 @@ class Audio(VimeoObject):
                         'preferredquality': '192', }],
                      'progress_hooks': [lambda : print("done")], }
         with youtube_dl.YoutubeDL(ydl_opts) as ydl:
-            x = ydl.download(['https://vimeo' + audioInfo['uri']])
-            # TODO: save the converted file on s3?
+            x = ydl.download([self.vimeo_url])
+        # TODO: save the converted file on s3?
 
 class Video(VimeoObject):
 
-    def _parseInfo(self, vidInfo, album=None, **kwargs):
-        self.vidInfo = vidInfo
+    def __init__(self, vimeoInfo, album=None):
+        super(Video, self).__init__(vimeoInfo)
         self.album = album
-        self.title = vidInfo['name']
-        embedHtml = vidInfo['embed']['html']
-        lvh = BeautifulSoup(embedHtml, "lxml")
-        del lvh.iframe['width']
-        del lvh.iframe['height']
-        self.embedHtml = str(lvh.iframe)
 
     @property
     def album_name(self):
-        if getattr(self, 'album', False):
+        try:
             return self.album.name
-        return None
+        except:
+            return None
+
+        
+    @property
+    def audio(self):
+        return Audio(self.vimeoInfo)
 
     @staticmethod
     def latest(count=10):
         lvs = []
-        for alb in Album.albums():
-            for vid in alb.videos:
-                lvs.append(vid)
-                if len(lvs) == count:
-                    return lvs
+        try:
+            for alb in Album.albums():
+                for vid in alb.videos:
+                    lvs.append(vid)
+                    if len(lvs) == count:
+                        return lvs
+        except: 
+            # Need to think about this...
+            # What to do when Vimeo is down...
+            # don't want it to take our site down with it...
+            pass
+
         return lvs
 
 
 class Album(VimeoObject):
         
-    def _parseInfo(self, albInfo, **kwargs):
-        self.albInfo = albInfo
-        self.embed_html = albInfo['embed']['html']
-
     @staticmethod
     def albums():
         valbs = Album.fetch('/me/albums',
@@ -89,7 +123,7 @@ class Album(VimeoObject):
         albs = [Album(x) for x in valbs['data']]
         while(paging['next']):
             valbs = Album.fetch(paging['next'])
-            albs.append([Album(x) for x in valbs['data']])
+            albs.extend([Album(x) for x in valbs['data']])
             paging = valbs['paging']
         return albs
 
@@ -106,15 +140,19 @@ class Album(VimeoObject):
 
         return vids
 
-    @property
-    def name(self):
-        return self.albInfo['name']
 
-
-class VimeoView(View):
+class VideoView(View):
 
     def get(self, request, video_id):
         vid = VimeoObject.cache[video_id]
         return render(request, "pleromanna/vimeo_vid.html", {'vid': vid})
 
-urlpatterns = [url(r'^(\d+)/$', VimeoView.as_view(), name="vimeo")]
+
+class AudioView(View):
+
+    def get(self, request, video_id):
+        vid = VimeoObject.cache[video_id]
+        return vid.audio.serve()
+
+urlpatterns = [url(r'^videos/(\d+)/$', VideoView.as_view(), name="vimeo"),
+               url(r'^audio/(\d+)/$', AudioView.as_view(), name="audio")]
