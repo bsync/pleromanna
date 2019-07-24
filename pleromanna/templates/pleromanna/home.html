@@ -3,7 +3,7 @@
 {% block extrastyle %} 
    .container {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(650px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(900px, 1fr));
       grid-column-gap: 10px;
       background-color: gray; color: white;
       justify-items: center;
@@ -18,100 +18,89 @@
       text-align: center;
       margin: 5px;
    }
-   .pic { 
-      grid-column: 1 / 2; grid-row: 2 / 8; 
+   .main { 
+      grid-column: 1 / 2; grid-row: 2 / 5; 
+      grid-column-gap: 10px;
       margin: 5px; padding: 5px;
-      background-color: blue; 
+      color: yellow; background-color: blue; 
       border-radius: 15px;
       object-fit: contain;
+      text-align: center;
    }
    .notices { 
-      grid-column: 1 / 2; grid-row: 8 / 9; 
       background-color: black; color: red;
       border: 2px solid #ffa94d;
       border-radius: 15px;
       width: 100%;
-      text-align: center;
-      margin: 5px;
+      margin: auto;
+      text-align: left;
    }
+   .notices > ul { list-style: none; }
+      
    .events { 
-      grid-column: 2 / 4; grid-row: 2 / 5; 
+      grid-column: 2 / 2; grid-row: 2 / 5; 
       background-color: lightgray; color: black;
       border-radius: 15px;
       width: 100%;
-      margin: 5px; padding: 5px;
+      padding: 5px;
    }
-   .events > ul { list-style: none; }
-   .lessons { 
-      grid-column: 2 / 4; grid-row: 5 / 7; 
-      background-color: lightgray; color: black;
-      border-radius: 15px;
-      width: 100%;
-      margin: 5px;  padding: 5px;
-      list-style: none;
-   }
-   .lessons > ul { list-style: none; }
-   .active { 
-      grid-column: 2 / 4; grid-row: 7 / 9; 
-      background-color: lightgray; color: black;
-      border-radius: 15px;
-      width: 100%;
-      margin: 5px;  padding: 5px;
-      list-style: none;
-   }
-   .active > ul { list-style: none; }
+   .events > ul { list-style: none; padding-left: 0px; }
+   .events > ul > li { padding-bottom: 5px; padding-top: 5px; }
+   .events > b > a { color: black; }
    .para { 
-      grid-column: 1 / 4; grid-row: 9 / 10; 
       background-color: lightgray; color: black;
       border-radius: 15px;
       padding: 8px;
       margin: 5px; 
+      text-align: left;
    }
 {% endblock %}
 {% block content %}
 <div class="container">
-  <div class="header"> <h1> <u><b>{{ page.heading }} </b></u></h1> </div>
-  <div class="pic"> {% image page.image max-650x500 %} </div>  
+   <!--div class="header"> <h1> <u><b>{{ page.heading }} </b></u></h1> </div-->
+  <div class="main"> {% image page.image max-850x600 %} <br>
+     <b>{{ page.verse|richtext}}</b>
+     <div class="notices">
+         Notice: {{ page.notice|richtext }}
+         <b>Recent Activity:</b>
+         <ul>
+         {% for repage in recent_pages %}
+            <li> 
+               <a href="{{repage.url}}">
+                  {{ repage.title|truncatechars:25 }}</a> - 
+               {{ repage.pub_date|date:'m-d' }} </li>
+         {% endfor %}
+         </ul>
+     </div>
+     <div class="para">
+         <div class="block"> {{ page.paragraph|richtext }} </div>
+     </div>
+  </div>  
    <div class="events">
       <b>Upcoming Events:</b>
-      <ul>
-      {% for eblock in evtBlocks %}
-         <li> 
-            <a href="{{ evtPage }}#{{eblock.id}}">
-               {{ eblock.value.section|truncatechars:25 }}</a> - 
-            {{ eblock.value.start_date|date:'m-d' }}
-         </li>
-      {% endfor %}
-      </ul>
-   </div>
-   <div class="lessons">
-      <b><a href="/media/lessons">Latest Lessons:</a></b>
+      {% if evtBlocks %}
+         <ul>
+         {% for eblock in evtBlocks %}
+            <li> 
+               <a href="{{ evtPage }}#{{eblock.id}}">
+                  {{ eblock.value.section|truncatechars:25 }}</a> - 
+               {{ eblock.value.start_date|date:'m-d' }}
+            </li>
+         {% endfor %}
+         </ul>
+      {% else %}
+      <br> Stay tuned...<br>
+      <br>
+      {% endif %}
+      <b><a href="/media/lessons/">Latest Lessons:</a></b>
       <ul> 
          {% for lesson in lessons %}
          <li> 
-            <a href="{{lesson.url}}">
-               {{lesson.album_name}}:{{lesson.title}}
-            </a> 
+            {{lesson.album_name}} : </br>
+            <a href="{{lesson.url}}">{{lesson.name}}</a> 
          </li>
          {% endfor %}
       </ul>
    </div>
-   <div class="active">
-      <b>Recent Activity:</b>
-      <ul>
-      {% for repage in recent_pages %}
-         <li> 
-            <a href="{{repage.url}}">
-               {{ repage.title|truncatechars:25 }}</a> - 
-            {{ repage.pub_date|date:'m-d' }} </li>
-      {% endfor %}
-      </ul>
-   </div>
-  <div class="notices">
-      Notice: {{ page.notice|richtext }}
-  </div>
-  <div class="para">
-      <div class="block"> {{ page.paragraph|richtext }} </div>
-  </div>
 </div>
 {% endblock %}
