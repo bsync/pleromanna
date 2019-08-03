@@ -6,8 +6,9 @@ from urllib.parse import urlsplit
 from django.views import View
 from django.conf.urls import url
 from django.shortcuts import render
-from django.http import HttpResponse
+from django.http import FileResponse
 from . import secrets
+from multiprocessing import Process
 
 # Set the Referer in the header to allow download via youtube_dl
 # This is necessary for mp4 audio only conversion of video files
@@ -62,18 +63,24 @@ class Audio(VimeoObject):
 
     @property
     def vimeo_url(self):
-        return 'https://vimeo.com/' + super(Audio, self).vim_id
+        return 'https://player.vimeo.com/' + super(Audio, self).vim_id
 
     def serve(self):
-        ydl_opts = { 'format': 'bestaudio/best',
-                     'postprocessors': [{
-                        'key': 'FFmpegExtractAudio',
-                        'preferredcodec': 'mp3',
-                        'preferredquality': '192', }],
-                     'progress_hooks': [lambda : print("done")], }
-        with youtube_dl.YoutubeDL(ydl_opts) as ydl:
-            x = ydl.download([self.vimeo_url])
-        # TODO: save the converted file on s3?
+        def stream_it():
+            with youtube_dl.YoutubeDL({ 'format': 'bestaudio/best',
+                                        'postprocessors': [{
+                                            'key': 'FFmpegExtractAudio',
+                                            'preferredcodec': 'mp3',
+                                            'preferredquality': '128', }],
+                                        'output': 'tmp.mp3',
+                                        'progress_hooks': [], }) as ydl:
+                x = Process(target=ydl.download, args=([self.vimeo_url],))
+                x.start()
+                with open('tmp.mp3', 'rb') as mp3file:
+                    yield mp3file.read(1000)
+                x.join()
+                os.unlink('tmp.mp3')
+        return FileResponse(stream_it(), filename="test.mp3")
 
 class Video(VimeoObject):
 

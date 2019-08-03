@@ -27,9 +27,8 @@
                   background-size: cover;
                   font-size: 20px; 
                   background-color: #ccc; color: black; }
-            .navbar { width: 90%;
-                      margin: auto;
-                      border-radius: 30px; 
+            .navbar { margin: auto;
+                      border-radius: 15px; 
                       background-color: darkblue; 
                       color: white; }
             .navbar-nav > li > .dropdown-menu { border-radius: 25px;
@@ -40,11 +39,51 @@
                                  white-space: nowrap; }
             .navbar-nav > ul { padding-left:30px; padding-right:30px; }
             
+            .container {
+               display: grid;
+               grid-template-rows: auto;
+               grid-column-gap: 10px;
+               grid-template-areas: 
+                  "header header header header"
+                  "main main main sidebar"
+                  "footer footer footer sidebar";
+            }
+            @media only screen and (max-width: 800px)  {
+               .container {
+                  grid-template-areas:
+                      "header   header"
+                      "main     main"
+                      "sidebar  sidebar"
+                      "footer   footer";
+                                 }
+            }
+   .header { 
+      grid-area: header; 
+      border-radius: 15px;
+         text-align: center;
+            margin: 5px;
+            }
+            .main { 
+               grid-area: main; 
+               background-color: grey; 
+               border-radius: 15px;
+               width: 100%;
+               margin: 5px; padding: 5px;
+            }
+            .sidebar { 
+               grid-area: sidebar; 
+               margin: 5px; padding: 5px;
+               border-radius: 15px;
+            }
+            .footer { grid-area: footer; }
          {% block extrastyle %} {% endblock %}
          </style>
     </head>
     <body> 
-         <nav class="navbar navbar-fixed-top navbar-expand-sm fixed-top">
+    <div class="container">
+       <div class="header">
+       {% block header %}
+         <nav class="navbar navbar-expand-sm">
                <!-- Brand/Logo -->
                <a class="navbar-brand" href="/">Pleroma</a>
                <!-- Navbar toggler  -->
@@ -64,8 +103,13 @@
                   {% endblock %}
                </div>
          </nav>
+       {% endblock %}
+       </div>
+       <div class="main"> {% block main %} {% endblock %} </div>
+       <div class="sidebar"> {% block sidebar %} {% endblock %} </div>
+       <div class="footer"> {% block footer %} {% endblock %} </div>
+    </div>
          {% wagtailuserbar %} 
-         {% block content %}{% endblock %}
        <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
        <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>

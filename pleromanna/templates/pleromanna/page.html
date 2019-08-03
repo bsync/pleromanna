@@ -1,41 +1,26 @@
 {% extends "base.html" %}
 {% load wagtailcore_tags %}
 {% block extrastyle %} 
-body { margin-top: 60px; }
-.container {
-	display: grid;
-	border-radius: 15px;
-	grid-gap: 10px;
-	color: yellow;
-}
-
 .box {
 	background-color: gray; color: black;
 	border-radius: 5px;
 	padding: 20px;
-	margin: 20px;
 	font-size: 150%;
 }
 
 .article{
-	display: grid;
 	grid-gap: 10px;
-	grid-template-columns: repeat(4, 1fr);
 	grid-template-areas: 
-		"im hd hd hd"
-		"im pa pa pa";
+		"header "
+		"image"
+		"footer";
 }
 
-.header { grid-area: hd; }
-.image { grid-area: im; }
-.para {  grid-area: pa; }
 {% endblock %}
 
-{% block content %} 
+{% block main %} 
    {{ block.super }}
-   <div class="container">
       {% for bblock in page.body %}
          {% include_block bblock with bid=bblock.id %}
       {% endfor %}
-   </div>
 {% endblock %}

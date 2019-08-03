@@ -1,23 +1,24 @@
 {% extends "pleromanna/page.html" %}
 {% load menu_tags %}
-
 {% block extrastyle %} 
    {{ block.super }}
-
+.container {
+   grid-template-areas: 
+      "header header header"
+      "main main main";
+}
 .lessons { 
-   display: grid;
-   background-color: darkblue; 
+   background-color: darkblue; color: white;
    border-radius: 15px;
    margin: 5px;
    padding: 20px;
-   grid-auto-rows: minmax(30px, auto);
 }
 .lessons a { color: yellow; }
 .lessons h2 { background-color: blue; 
               border-radius: 20px; 
               padding: 10px; }
 .latest_lessons { 
-   background-color: darkblue; 
+   background-color: darkblue; color: white;
    border-radius: 15px;
    width: 100%;
    margin: 5px;
@@ -31,12 +32,10 @@
 {% block menu %}
    {% flat_menu 'lesson_menu' max_levels=2 template="menus/main_menu.html" %}
 {% endblock %}
-
-{% block content %} 
+{% block main %} 
      {% if page.body %}
          {{ block.super }}
      {% else %}
-         <div class="container">
             <div class="latest_lessons">
                <h2><b>Latest Lessons:</b></h2>
                <br>
@@ -52,6 +51,5 @@
                {% endfor %}
                </ul>
             </div>
-         </div>
    {% endif %}
 {%endblock%}
