@@ -162,4 +162,4 @@ class AudioView(View):
         return vid.audio.serve()
 
 urlpatterns = [url(r'^videos/(\d+)/$', VideoView.as_view(), name="vimeo"),
-               url(r'^audio/(\d+)/$', AudioView.as_view(), name="audio")]
+               url(r'^audio/(\d+)/$', VideoView.as_view(), name="audio")]
