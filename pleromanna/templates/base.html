@@ -29,12 +29,12 @@
                   background-color: #ccc; color: black; }
             .navbar { margin: auto;
                       border-radius: 15px; 
-                      background-color: darkblue; 
+                      background-color: #2b3856; 
                       color: white; }
             .navbar-nav > li > .dropdown-menu { border-radius: 25px;
                                                 background-color: black; 
                                                 padding: 10px; }
-            .navbar-nav > li a { color: yellow; 
+            .navbar-nav > li a { color: white; 
                                  padding: 10px; 
                                  white-space: nowrap; }
             .navbar-nav > ul { padding-left:30px; padding-right:30px; }
@@ -85,7 +85,9 @@
        {% block header %}
          <nav class="navbar navbar-expand-sm">
                <!-- Brand/Logo -->
-               <a class="navbar-brand" href="/">Pleroma</a>
+               <a class="navbar-brand" href="/">
+                  <img src="/media/images/Pleroma_30x30.png">
+               </a>
                <!-- Navbar toggler  -->
                <button class="navbar-toggler hamburger hamburger-js" 
                         type="button" data-toggle="collapse"
