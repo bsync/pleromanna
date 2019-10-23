@@ -8,6 +8,8 @@ PyVimeo
 unipath
 boto3
 youtube_dl
+ffmpy
 gunicorn
+whitenoise
 ipython
 lxml

@@ -13,7 +13,7 @@ from wagtail.core import blocks as core_blocks
 from wagtail.embeds.blocks import EmbedBlock
 from wagtailmenus.models import MenuPage
 from commonblocks import blocks as common_blocks
-from .vimeoresource import Video, Album, VimeoObject
+from .vimeoresource import client as vclient
 from collections import namedtuple
 
 
@@ -109,7 +109,7 @@ class LessonStructValue(core_blocks.StructValue):
 
 class LessonBlock(SectionBlock):
     def alb_choices():
-        return [ (alb.vim_id, alb.name) for alb in Album.albums() ]
+        return [ (alb.vim_id, alb.name) for alb in vclient.albums ]
 
     album_choice = core_blocks.ChoiceBlock(choices=alb_choices)
 
@@ -142,7 +142,7 @@ class ContextPage(MenuPage):
         context['menu_children'] = Page.objects.child_of(self)
         hp = Page.objects.type(PleromaHomePage).first().specific
         context['backdrop'] = hp.backdrop
-        context['lessons'] = Video.latest(7)
+        context['lessons'] = vclient.latest_videos(7)
         return context
 
     def save(self, *args, **kwargs):
@@ -323,7 +323,7 @@ class LessonsPage(ContextPage):
 
     def get_context(self, request):
         context = super(ContextPage, self).get_context(request)
-        context['lessons'] = Video.latest(10)
+        context['lessons'] = vclient.latest_videos(10)
         return context
 
     def clean(self):
@@ -334,6 +334,5 @@ class LessonsPage(ContextPage):
             if not alblock.value['section']:
                 albid = alblock.value['album_choice']
                 alblock.value['section'] = VimeoObject.cache[albid].name
-
 
 LessonsPage.parent_page_types = [PleromaPage, LessonsPage]

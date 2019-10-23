@@ -11,6 +11,10 @@ ALLOWED_HOSTS = ['*']
 
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
+AWS_STORAGE_BUCKET_NAME = 'dev.pleromabiblechurch.org'
+AWS_AUTO_CREATE_BUCKET = True
+
+BASE_URL = 'https://dev.pleromabiblechurch.org'
 
 try:
     from .local import *

@@ -87,8 +87,8 @@
          <ul> 
             {% for lesson in lessons %}
             <li> 
-               {{lesson.album_name}} : </br>
-               <a href="{{lesson.url}}">{{lesson.name}}</a> 
+               {{ lesson.album.name }} : </br>
+               <a href="{{lesson.url}}">{{ lesson.name }}</a> 
             </li>
             {% endfor %}
          </ul>

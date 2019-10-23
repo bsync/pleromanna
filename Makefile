@@ -1,6 +1,6 @@
 DYML=docker-compose.yml
 
-up: 
+upd: 
 	docker-compose -f $(DYML) up -d
 
 int_up: 
@@ -15,38 +15,38 @@ down:
 build:
 	docker-compose build
 
-showmigs: up
-	docker-compose exec pleroma python manage.py showmigrations
+showmigs: upd
+	docker-compose exec pleroma python3 manage.py showmigrations
 
-pygrate: up
-	docker-compose exec pleroma python manage.py makemigrations pleromanna
-	docker-compose exec pleroma python manage.py migrate
+pygrate: upd
+	docker-compose exec pleroma python3 manage.py makemigrations pleromanna
+	docker-compose exec pleroma python3 manage.py migrate
 
-superuser: up
-	docker-compose exec pleroma python manage.py createsuperuser
+superuser: upd
+	docker-compose exec pleroma python3 manage.py createsuperuser
 
-pshell: up
+pshell: upd
 	docker-compose exec pleroma bash
 
-pyshell: up
-	docker-compose exec pleroma python manage.py shell
+pyshell: upd
+	docker-compose exec pleroma python3 manage.py shell
 
-ipyshell: up
+ipyshell: upd
 	docker-compose exec pleroma ipython
 
-dbshell: up
-	docker-compose exec pleroma python manage.py dbshell
+dbshell: upd
+	docker-compose exec pleroma python3 manage.py dbshell
 
-collected: up
-	docker-compose exec pleroma python manage.py collectstatic -i wagtail* -i common* -i admin* --no-input
+collected: upd
+	docker-compose exec pleroma python3 manage.py collectstatic -i wagtail* -i common* -i admin* --no-input
 
-attached: up
+attached: upd
 	docker attach pleroma
 
 dumpdb:
 	pg_dump -U dbsync -h dev.pleromabiblechurch.org -d pleromadb > dev.dump
 
-syncdbs: up
+syncdbs: upd
 	@docker exec pleroma_postgres dropdb -U postgres postgres || true
 	@sleep 3
 	@docker exec pleroma_postgres createdb -U postgres -O postgres postgres
@@ -54,4 +54,11 @@ syncdbs: up
 	@sed -s 's/dbsync/postgres/g' dev.dump | docker exec -i pleroma_postgres psql -U postgres postgres 
 	@docker-compose down 
 
+docker_volume_backups:
+	sudo tar czvf plerodata.backup.tar.gz /var/lib/docker/volumes/plerodata
+	sudo tar czvf pleromedia.backup.tar.gz /var/lib/docker/volumes/pleromedia
+
+docker_volume_restore:
+	sudo tar xzvf plerodata.backup.tar.gz -C / 
+	sudo tar xzvf pleromedia.backup.tar.gz -C / 
 .ONESHELL:

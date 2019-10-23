@@ -7,21 +7,20 @@ services:
          context: .
       image: plerodock
       container_name: pleroma
-      command: >
-         python manage.py runserver 0.0.0.0:8000
       volumes:
          - .:/code
          - pleromedia:/code/media
+         - ~/pleroma/pleroma_secrets.py:/code/pleromanna/secrets.py
+         - ~/pleroma/passwd-s3fs:/etc/passwd-s3fs
+         - ~/pleroma/ssl:/code/ssl
 
       ports:
-         - "8000:8000"
+         - "443:8000"
       depends_on:
          - postgres
       stdin_open: true
       tty: true     
-      secrets:
-         - source: pleroma_secrets
-           target: /code/pleromanna/secrets.py
+      privileged: true
 
    postgres:
       image: postgres
@@ -29,11 +28,8 @@ services:
       volumes:
          - plerodata:/var/lib/postgresql/data
 
-secrets:
-   pleroma_secrets:
-      file: ~/pleroma_secrets.py
-
 volumes:
-   pleromedia:
    plerodata:
-      external: true
+      name: plerodata
+   pleromedia:
+      name: pleromedia

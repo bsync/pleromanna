@@ -27,6 +27,10 @@
       width: 100%;
       padding: 10px; margin: 5px;
    }
+   .audiolink { 
+      background-color: white; 
+      color: blue; 
+   }
 {% endblock %} 
 
 {% block menu %}
@@ -35,10 +39,41 @@
 
 {% block main %}
    <div class="embed">
-      {{ vid.embed_html | safe }}
+      {{ video.embed_html | safe }}
    </div>
    <div class="info">
-      {{ vid.album_name }} : {{ vid.name }}
-      <a href="{{vid.audio.url}}"> (mp3 audio only) </a> 
+      {{ video.album.name }} : {{ video.name }} 
+      {% if audio.is_generating %}
+         (audio - <b id="audiolink"></b> - Generating please wait...)
+      {% elif audio.size == 0 %}
+         <a id="audiolink" href="{{ audio.url }}"> (click to generate audio) </a> 
+      {% else %}
+         <a id="audiolink" href="{{ audio.url }}"> (audio - {{ audio.size }}) </a> 
+      {% endif %}
    </div>
+{% endblock %}
+
+{% block extra_js %}
+   function gen_audio_status() {
+     var xhttp;
+     xhttp = new XMLHttpRequest();
+     xhttp.onreadystatechange = function() {
+       if (this.readyState == 4 && this.status == 200) {
+         document.getElementById("audiolink").innerHTML = this.responseText;
+         if (/^\d/.test(this.responseText)) 
+         { 
+            setTimeout(gen_audio_status, 10000); 
+         }
+         else 
+         { 
+            window.location.replace(this.responseText); 
+         }
+       }
+     };
+     xhttp.open("GET", "audio_gen_status", true);
+     xhttp.send();   
+   }
+{% if audio.is_generating %}
+   setTimeout(gen_audio_status, 5000);
+{% endif %}
 {% endblock %}

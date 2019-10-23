@@ -12,9 +12,9 @@ https://docs.djangoproject.com/en/2.0/ref/settings/
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
+from .. import secrets
 
 APPDIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-print("APPDIR is {}".format(APPDIR))
 BASE_DIR = os.path.dirname(APPDIR)
 
 
@@ -25,9 +25,7 @@ BASE_DIR = os.path.dirname(APPDIR)
 # Application definition
 
 INSTALLED_APPS = [
-    #'home',
     'search',
-
     'wagtail.contrib.forms',
     'wagtail.contrib.redirects',
     'wagtail.embeds',
@@ -62,7 +60,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.security.SecurityMiddleware',
-
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'wagtail.core.middleware.SiteMiddleware',
     'wagtail.contrib.redirects.middleware.RedirectMiddleware',
 ]
@@ -137,6 +135,12 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.0/howto/static-files/
+DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+AWS_STORAGE_BUCKET_NAME = 'www.pleromabiblechurch.org'
+AWS_ACCESS_KEY_ID = secrets.AWS_ACCESS_KEY_ID
+AWS_SECRET_ACCESS_KEY = secrets.AWS_SECRET_ACCESS_KEY
+AWS_DEFAULT_ACL = None
 
 STATICFILES_FINDERS = [
     'django.contrib.staticfiles.finders.FileSystemFinder',
@@ -145,6 +149,7 @@ STATICFILES_FINDERS = [
 
 STATICFILES_DIRS = [
     os.path.join(APPDIR, 'static'),
+    'media',
 ]
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
