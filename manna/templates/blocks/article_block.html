@@ -1,0 +1,13 @@
+{% load wagtailimages_tags %}
+<div class="article">
+   <div class="header">
+	<hr> 
+	<h2> {{ value.section }} </h2> 
+	<hr> 
+	<h3>{{value.subject}}</h3>
+   </div>
+   <div class="image">{% image value.image min-100x400 %}</div>
+   <div class="para box" id="{{ bid }}"> 
+   	<p style="font-size: large;">{{value.paragraph}}</p>
+   </div>
+</div>

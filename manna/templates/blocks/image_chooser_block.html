@@ -1,0 +1,11 @@
+{% load collection_tags %}
+
+<div id="{{ bid }}" class="row"
+     style="background-color: green; padding-left: 10px;">
+      <div class="col-sm-12"> {{ value.section }} </div>
+</div>
+<div class="row">
+   <div class="col-sm-12 text-center">
+      {% image_collection value.collection %}
+   </div>
+</div>

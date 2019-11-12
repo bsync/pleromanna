@@ -1,0 +1,10 @@
+{% load wagtailembeds_tags %}
+
+<div class="lessons"
+     id="{{ bid }}" 
+     style="background-color: blue; padding-left: 10px;">
+   <hr> 
+   <b> {{ value.section|default:"No Name" }} </b>
+   <hr>
+   {{ value.album.embed_html|safe }}
+</div>

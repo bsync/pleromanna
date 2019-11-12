@@ -1,0 +1,27 @@
+[[source]]
+name = "pypi"
+url = "https://pypi.org/simple"
+verify_ssl = true
+
+[dev-packages]
+ipython = "*"
+neovim = "*"
+
+[packages]
+wagtail = "*"
+wagtailmenus = "*"
+wagtailcommonblocks = "*"
+django-storages = "*"
+psycopg2-binary = "*"
+boto3 = "*"
+ffmpy = "*"
+lxml = "*"
+Unipath = "*"
+gunicorn = "*"
+
+[requires]
+python_version = "3.7"
+
+[dev-packages.v]
+version = "*"
+editable = true

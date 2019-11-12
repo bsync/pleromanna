@@ -1,0 +1,79 @@
+{% extends "pleromanna/page.html" %}
+{% load menu_tags %}
+
+{% block extrastyle %} 
+   .embed { 
+      background-color: darkblue; 
+      border-radius: 15px;
+      display: block; 
+      width: 85%; 
+      margin-left: auto; 
+      margin-right: auto;
+      position: relative;
+      overflow: hidden;
+      padding-top: 60%;
+   }
+   .embed > iframe {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border: 0;
+   }
+   .info { 
+      background-color: blue; 
+      border-radius: 15px;
+      width: 100%;
+      padding: 10px; margin: 5px;
+   }
+   .audiolink { 
+      background-color: white; 
+      color: blue; 
+   }
+{% endblock %} 
+
+{% block menu %}
+   {% flat_menu 'lesson_menu' max_levels=2 template="menus/main_menu.html" %}
+{% endblock %}
+
+{% block main %}
+   <div class="embed">
+      {{ video.embed_html | safe }}
+   </div>
+   <div class="info">
+      {{ video.album.name }} : {{ video.name }} 
+      {% if audio.is_generating %}
+         (audio - <b id="audiolink"></b> - Generating please wait...)
+      {% elif audio.size == 0 %}
+         <a id="audiolink" href="{{ audio.url }}"> (click to generate audio) </a> 
+      {% else %}
+         <a id="audiolink" href="{{ audio.url }}"> (audio - {{ audio.size }}) </a> 
+      {% endif %}
+   </div>
+{% endblock %}
+
+{% block extra_js %}
+   function gen_audio_status() {
+     var xhttp;
+     xhttp = new XMLHttpRequest();
+     xhttp.onreadystatechange = function() {
+       if (this.readyState == 4 && this.status == 200) {
+         document.getElementById("audiolink").innerHTML = this.responseText;
+         if (/^\d/.test(this.responseText)) 
+         { 
+            setTimeout(gen_audio_status, 10000); 
+         }
+         else 
+         { 
+            window.location.replace(this.responseText); 
+         }
+       }
+     };
+     xhttp.open("GET", "audio_gen_status", true);
+     xhttp.send();   
+   }
+{% if audio.is_generating %}
+   setTimeout(gen_audio_status, 5000);
+{% endif %}
+{% endblock %}

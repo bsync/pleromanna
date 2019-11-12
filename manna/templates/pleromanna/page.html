@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% load wagtailcore_tags %}
+{% block extrastyle %} 
+.box {
+	background-color: gray; color: black;
+	border-radius: 5px;
+	padding: 20px;
+	font-size: 150%;
+}
+
+.article{
+	grid-gap: 10px;
+	grid-template-areas: 
+		"header "
+		"image"
+		"footer";
+}
+
+{% endblock %}
+
+{% block main %} 
+   {{ block.super }}
+      {% for bblock in page.body %}
+         {% include_block bblock with bid=bblock.id %}
+      {% endfor %}
+{% endblock %}

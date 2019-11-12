@@ -1,0 +1,6 @@
+{% extends "pleromanna/page.html" %}
+{% load menu_tags %}
+
+{% block menu %}
+   {% flat_menu 'event_menu' max_levels=2 template="menus/main_menu.html" %}
+{% endblock %}

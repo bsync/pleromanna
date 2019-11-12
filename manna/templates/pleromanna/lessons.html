@@ -1,0 +1,55 @@
+{% extends "pleromanna/page.html" %}
+{% load menu_tags %}
+{% block extrastyle %} 
+   {{ block.super }}
+.container {
+   grid-template-areas: 
+      "header header header"
+      "main main main";
+}
+.lessons { 
+   background-color: darkblue; color: white;
+   border-radius: 15px;
+   margin: 5px;
+   padding: 20px;
+}
+.lessons a { color: yellow; }
+.lessons h2 { background-color: blue; 
+              border-radius: 20px; 
+              padding: 10px; }
+.latest_lessons { 
+   background-color: darkblue; color: white;
+   border-radius: 15px;
+   width: 100%;
+   margin: 5px;
+   padding: 20px;
+}
+.latest_lessons a { color: yellow; }
+.latest_lessons h2 { background-color: blue; 
+                     border-radius: 20px; 
+                     padding: 10px; }
+{% endblock %}
+{% block menu %}
+   {% flat_menu 'lesson_menu' max_levels=2 template="menus/main_menu.html" %}
+{% endblock %}
+{% block main %} 
+     {% if page.body %}
+         {{ block.super }}
+     {% else %}
+            <div class="latest_lessons">
+               <h2><b>Latest Lessons:</b></h2>
+               <br>
+               <ul style="list-style: none;">
+               {% for lesson in lessons %}
+                  <li style="white-space: normal;"> 
+                     {{lesson.album_name}} <br>
+                     {{lesson.name}} 
+                     <a href="{{lesson.url}}">(mp4 video)</a> 
+                     <a href="{{lesson.audio.url}}">(mp3 audio only) </a> 
+                  </li>
+                  <br>
+               {% endfor %}
+               </ul>
+            </div>
+   {% endif %}
+{%endblock%}

@@ -1,0 +1,16 @@
+{% load wagtailimages_tags %}
+
+<div class="article" >
+      <div id="{{ bid }}" class="header" >
+	<hr> 
+	<h2> {{ value.section }} </h2> 
+      </div>
+      <div class="image">
+         {% image value.photo original %}
+      </div>
+      <div class="para box">
+         <h3>{{value.first_name}} {{value.middle_name}} {{value.last_name}}</h3>
+         <h3>{{value.titles}}</h3>
+         <p style="font-size: large;">{{value.biography}}</p>
+      </div>
+</div>

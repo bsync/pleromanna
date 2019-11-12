@@ -1,0 +1,17 @@
+{% load wagtailcore_tags wagtailimages_tags %}
+
+{% for eachImage in images %}
+   <div class="row" style="background-color: black;">
+      <div class="col-sm-8">
+         {{ eachImage.title|lower|cut:" " }}  
+      </div>
+      <div class="col-sm-4"> 
+         <a href="{{ page.url }}">back to the top</a>
+      </div>
+   </div>
+   <div class="row">
+      <div class="col-sm-12 text-center">
+         {% image eachImage max-800x600 class="img-fluid" %}
+      </div>
+   </div>
+{% endfor %}

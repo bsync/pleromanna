@@ -1,0 +1,33 @@
+{% extends "pleromanna/page.html" %}
+{% load menu_tags %}
+
+{% block menu %}
+   {% flat_menu 'imagery_menu' max_levels=2 template="menus/main_menu.html" %}
+{% endblock %}
+
+{% block extrastyle %} 
+   {{ block.super }}
+   .images { 
+      background-color: darkblue; 
+      border-radius: 15px;
+      width: 100%;
+      margin: 5px;
+      padding: 20px;
+   }
+   .images a { color: yellow; }
+   .images h2 { background-color: blue; border-radius: 20px; padding: 10px; }
+{% endblock %}
+
+{% block main %} 
+   <div class="images">
+      <h2><b>Latest Imagery:</b></h2>
+      <ul style="list-style: none;">
+      {% for image in imgBlocks %}
+         <li> 
+            <a href="{{image.url}}#{{image.section}}">{{image.section}}</a> 
+         </li>
+      {% endfor %}
+      </ul>
+   </div>
+   {{ block.super }}
+{%endblock%}
